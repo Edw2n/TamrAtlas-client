@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+Jeju Instagram Atlas (SNU Infovis 2020 fall)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
