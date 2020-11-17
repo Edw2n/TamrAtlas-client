@@ -22,7 +22,7 @@ function Atlas() {
         var path = d3.geoPath().projection(projection);
 
         // load data
-        var tamraMap = d3.json("https://raw.githubusercontent.com/Edw2n/geojson-prac/master/tamra-grid.geojson", function (data){
+        var tamraMap = d3.json("https://raw.githubusercontent.com/Edw2n/geojson-prac/master/tamra-square-vanilla.geojson", function (data){
             console.log(data);
         });
 
