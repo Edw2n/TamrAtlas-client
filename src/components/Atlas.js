@@ -4,7 +4,7 @@ import './Atlas.css';
 
 function Atlas() {
     let w = 2000;
-    let h = 2000;
+    let h = 1200;
     React.useEffect(() => {
         // TODO draw the map using d3
 
@@ -47,7 +47,8 @@ function Atlas() {
                 .append("path")
                 .attr("class", "tamra")
                 .attr("d", path)
-                .style('fill', "url(#bg)");
+                .attr('fill', 'orange')
+            //    .style('fill', "url(#bg)");
 
             svg.call(d3.zoom()
                 .extent([[0, 0], [w, h]])
@@ -64,7 +65,6 @@ function Atlas() {
 
     return (
         <div>
-            <h1>Welcome to the Fantastic TamrAtlas 😎</h1>
             <div>
                 <svg id="mapCanvas"/>
             </div>
