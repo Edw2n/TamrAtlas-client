@@ -2,6 +2,46 @@ import React from 'react';
 import * as d3 from 'd3';
 import './Atlas.css';
 
+function generateMountain(layers) {
+  const grid = 20;
+  const data = [];
+  const numGrids = layers + 2 * (layers - 1);
+  data.push({
+    x: grid * (numGrids / 2),
+    y: grid * (numGrids / 2),
+    size: grid * (layers - 0.1)
+  });
+
+  for (let i = 1; i < layers; i += 1) {
+    const size = grid * (1 - i * 0.15);
+
+    // Top
+    for (let j = layers - 0.5; j <= numGrids - layers + 0.5; j += 1) {
+      const min = grid * (layers - i - 0.5);
+      const max = grid * numGrids - min;
+      data.push({ x: grid * j, y: min, size });
+      data.push({ x: grid * j, y: max, size });
+      data.push({ x: min, y: grid * j, size });
+      data.push({ x: max, y: grid * j, size });
+    }
+
+    for (let j = 0; j < i - 1; j += 1) {
+      const min = layers - i + 0.5;
+      const max = layers - 1.5;
+      data.push({ x: grid * (min + j), y: grid * (max - j), size });
+      data.push({ x: grid * (numGrids - min - j), y: grid * (max - j), size });
+      data.push({ x: grid * (min + j), y: grid * (numGrids - max + j), size });
+      data.push({
+        x: grid * (numGrids - min - j),
+        y: grid * (numGrids - max + j),
+        size
+      });
+    }
+  }
+
+  return data
+}
+
 function Atlas() {
     let w = 2000;
     let h = 1200;
