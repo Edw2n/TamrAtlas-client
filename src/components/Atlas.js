@@ -53,7 +53,7 @@ function geojson2data(geojson) {
 
     const projection = d3.geoMercator()
       .translate([0, 0])
-      .center([126.1, 34.15])
+      .center([126.1, 34.12])
       .rotate([0, 0, 0.6])
       .scale(50);
     const [ x, y ] = projection([lonAvg, latAvg]);
@@ -62,7 +62,45 @@ function geojson2data(geojson) {
       point: [x, y]
     }
   });
-  return coords;
+  /* Filter out unnecessary regions (except the main island) */
+  const onlyJeju = coords.filter((c) => c.point[0] >= 0 && c.point[1] >= 0 );
+  /* Search for neighbours */
+  onlyJeju.forEach((d, i) => {
+    const topIndex = onlyJeju.findIndex((element, j) => {
+      return i !== j
+        && Math.abs(element.point[0] - d.point[0]) < 0.001
+        && d.point[1] > element.point[1]
+        && d.point[1] - element.point[1] < 0.01;
+    });
+
+    const bottomIndex = onlyJeju.findIndex((element, j) => {
+      return i !== j
+        && Math.abs(element.point[0] - d.point[0]) < 0.001
+        && d.point[1] < element.point[1]
+        && element.point[1] - d.point[1] < 0.01;
+    });
+
+    const leftIndex = onlyJeju.findIndex((element, j) => {
+      return i !== j
+        && Math.abs(element.point[1] - d.point[1]) < 0.001
+        && d.point[0] > element.point[0]
+        && d.point[0] - element.point[0] < 0.01;
+    });
+
+    const rightIndex = onlyJeju.findIndex((element, j) => {
+      return i !== j
+        && Math.abs(element.point[1] - d.point[1]) < 0.001
+        && d.point[0] < element.point[0]
+        && element.point[0] - d.point[0] < 0.01;
+    });
+
+    d.top = topIndex < 0 ? undefined : topIndex;
+    d.bottom = bottomIndex < 0 ? undefined : bottomIndex;
+    d.left = leftIndex < 0 ? undefined : leftIndex;
+    d.right = rightIndex < 0 ? undefined : rightIndex;
+  });
+  console.log(onlyJeju);
+  return onlyJeju;
 }
 
 function Atlas() {
