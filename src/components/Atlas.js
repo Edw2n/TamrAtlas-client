@@ -42,7 +42,7 @@ function generateMountain(layers) {
   return data
 }
 
-async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev,w,h) {
+async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
   let info = {
     grid: await d3.json(jsonUrl),
     fill: imgUrl,
@@ -141,6 +141,17 @@ function Atlas() {
 
       function zoomed({transform}) {
         geo.attr("transform", transform);
+        const zoomState = d3.zoomTransform(svg.node());
+        console.log(zoomState.k);
+        if (zoomState.k > gridInfo[level].end) {
+          setGrids(gridInfo[level].next);
+          console.log('scale up');
+        } else if (zoomState.k < gridInfo[level].start) {
+          setGrids(gridInfo[level].prev);
+          console.log('scale down');
+        } else {
+          geo.attr("transform", transform);
+        }
       }
 
       svg.call(
@@ -152,7 +163,7 @@ function Atlas() {
     }
 
     drawMap();
-  },[level]);
+  }, [level]);
 
   return (
     <div>
