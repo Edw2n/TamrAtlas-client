@@ -56,7 +56,7 @@ function Atlas() {
         .selectAll('*').remove();
 
       // load data
-      const jeju_1x = await d3.json('/jeju-2x.json');
+      const jeju_1x = await d3.json('/jeju-4x.json');
 
       // draw map
       svg.append("defs")
@@ -79,8 +79,8 @@ function Atlas() {
         .append('rect')
         .attr('x', (d) => d.point[0] * 1800)
         .attr('y', (d) => d.point[1] * 1800)
-        .attr('width', 8.44)
-        .attr('height', 8.44)
+        .attr('width', 4.22)
+        .attr('height', 4.22)
         .attr('fill', 'url(#bg)');
 
       /*
@@ -101,7 +101,7 @@ function Atlas() {
       svg.call(
         d3.zoom()
           .extent([[0, 0], [w, h]])
-          .scaleExtent([1, 20])
+          .scaleExtent([1, 60])
           .on("zoom", zoomed)
       );
     }
