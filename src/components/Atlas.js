@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import * as d3 from 'd3';
 import './Atlas.css';
 
@@ -42,11 +42,66 @@ function generateMountain(layers) {
   return data
 }
 
+async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev,w,h) {
+  let info = {
+    grid: await d3.json(jsonUrl),
+    fill: imgUrl,
+    start: start,
+    end: end,
+    prev: prev,
+    next: next,
+    width: w,
+    height: h
+  };
+
+  return info;
+}
+
+
 function Atlas() {
   let w = 2000;
   let h = 1100;
+
+  let gridInfo;
+  const [level, setGrids] = useState(['vanila']);
+
   React.useEffect(() => {
     async function drawMap() {
+
+      if (!gridInfo) {
+        gridInfo = {
+          'vanila': await makeGridInfo(
+            "/jeju-1x.json",
+            "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
+            1,
+            3,
+            'half',
+            'none',
+            16.75,
+            16.75
+          ),
+          'half': await makeGridInfo(
+            "/jeju-2x.json",
+            "https://seedling.kr/data/shop/item/1506491618_s",
+            3,
+            5,
+            'quarter',
+            'vanila',
+            8.44,
+            8.44
+          ),
+          'quarter': await makeGridInfo(
+            "/jeju-4x.json",
+            "https://image.yes24.com/blogimage/blog/k/s/kse10034/5a33xTQt.jpg",
+            5,
+            80,
+            'none',
+            'half',
+            4.22,
+            4.22
+          )
+        };
+      }
       const svg = d3.select('#mapCanvas');
       svg
         .attr("preserveAspectRatio", "xMinYMin meet")
@@ -56,43 +111,33 @@ function Atlas() {
         .selectAll('*').remove();
 
       // load data
-      const jeju_1x = await d3.json('/jeju-4x.json');
+      const gridMap = gridInfo[level].grid;
 
       // draw map
       svg.append("defs")
         .append("pattern")
-        .attr("id", "bg")
+        .attr("id", `${level}`)
         .attr("width", "100%")
         .attr('height', "100%")
         .attr("patternContentUnits", "objectBoundingBox")
         .append("image")
         .attr("height", "1") // value is ratio : "image height /pattern height"
-        .attr("width", "1") // value is ratio : "image widht /pattern width"
+        .attr("width", "1") // value is ratio : "image width /pattern width"
         .attr("xlink:href", // use square size image
-          "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg");
+          gridInfo[level].fill);
+
 
       var geo = svg.append('g');
       geo
         .selectAll('rect')
-        .data(jeju_1x)
+        .data(gridMap)
         .enter()
         .append('rect')
         .attr('x', (d) => d.point[0] * 1800)
         .attr('y', (d) => d.point[1] * 1800)
-        .attr('width', 4.22)
-        .attr('height', 4.22)
-        .attr('fill', 'url(#bg)');
-
-      /*
-      geo.selectAll("path")
-          .data(tamraMap.features)
-          .enter()
-          .append("path")
-          .attr("class", "tamra")
-          .attr("d", path)
-          .attr('fill', 'orange')*/
-
-      //    .style('fill', "url(#bg)");
+        .attr('width', gridInfo[level].width)
+        .attr('height', gridInfo[level].height)
+        .attr('fill', `url(#${level})`);
 
       function zoomed({transform}) {
         geo.attr("transform", transform);
@@ -107,7 +152,7 @@ function Atlas() {
     }
 
     drawMap();
-  });
+  },[level]);
 
   return (
     <div>
