@@ -73,14 +73,14 @@ function Atlas() {
 
       var geo = svg.append('g');
       geo
-        .selectAll('circle')
+        .selectAll('rect')
         .data(jeju_1x)
         .enter()
-        .append('circle')
-        .attr('cx', (d) => d.point[0] * 1800)
-        .attr('cy', (d) => d.point[1] * 1800)
-        .attr('r', 3)
-        .attr('fill', 'orange');
+        .append('rect')
+        .attr('x', (d) => d.point[0] * 1800)
+        .attr('y', (d) => d.point[1] * 1800)
+        .attr('width', 16.75).attr('height',16.75)
+        .attr('fill', 'url(#bg)');
 
       /*
       geo.selectAll("path")
