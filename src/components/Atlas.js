@@ -42,67 +42,6 @@ function generateMountain(layers) {
   return data
 }
 
-function geojson2data(geojson) {
-  const coords = geojson.features.map((f) => {
-    let latAvg = 0;
-    let lonAvg = 0;
-    for (let i = 0; i < 4; i += 1) {
-      lonAvg += f.geometry.coordinates[0][i][0] / 4;
-      latAvg += f.geometry.coordinates[0][i][1] / 4;
-    }
-
-    const projection = d3.geoMercator()
-      .translate([0, 0])
-      .center([126.1, 34.12])
-      .rotate([0, 0, 0.6])
-      .scale(50);
-    const [ x, y ] = projection([lonAvg, latAvg]);
-    return {
-      coord: [lonAvg, latAvg],
-      point: [x, y]
-    }
-  });
-  /* Filter out unnecessary regions (except the main island) */
-  const onlyJeju = coords.filter((c) => c.point[0] >= 0 && c.point[1] >= 0 );
-  /* Search for neighbours */
-  onlyJeju.forEach((d, i) => {
-    const topIndex = onlyJeju.findIndex((element, j) => {
-      return i !== j
-        && Math.abs(element.point[0] - d.point[0]) < 0.001
-        && d.point[1] > element.point[1]
-        && d.point[1] - element.point[1] < 0.01;
-    });
-
-    const bottomIndex = onlyJeju.findIndex((element, j) => {
-      return i !== j
-        && Math.abs(element.point[0] - d.point[0]) < 0.001
-        && d.point[1] < element.point[1]
-        && element.point[1] - d.point[1] < 0.01;
-    });
-
-    const leftIndex = onlyJeju.findIndex((element, j) => {
-      return i !== j
-        && Math.abs(element.point[1] - d.point[1]) < 0.001
-        && d.point[0] > element.point[0]
-        && d.point[0] - element.point[0] < 0.01;
-    });
-
-    const rightIndex = onlyJeju.findIndex((element, j) => {
-      return i !== j
-        && Math.abs(element.point[1] - d.point[1]) < 0.001
-        && d.point[0] < element.point[0]
-        && element.point[0] - d.point[0] < 0.01;
-    });
-
-    d.top = topIndex < 0 ? undefined : topIndex;
-    d.bottom = bottomIndex < 0 ? undefined : bottomIndex;
-    d.left = leftIndex < 0 ? undefined : leftIndex;
-    d.right = rightIndex < 0 ? undefined : rightIndex;
-  });
-  console.log(onlyJeju);
-  return onlyJeju;
-}
-
 function Atlas() {
   let w = 2000;
   let h = 1100;
@@ -116,16 +55,8 @@ function Atlas() {
           .classed("svg-content", true)
           .selectAll('*').remove();
 
-      var projection = d3.geoMercator()
-          .translate([0, 0])
-          .scale(90000)
-          .rotate([-10, 1, 0])
-          .center([125.8, 34.1]);
-      var path = d3.geoPath().projection(projection);
-
       // load data
-      const tamraMap = await d3.json("https://raw.githubusercontent.com/Edw2n/geojson-prac/master/tamra-square-vanilla.geojson");
-      const tamraData = geojson2data(tamraMap);
+      const jeju_1x = await d3.json('/jeju-1x.json');
 
       // draw map
       svg.append("defs")
@@ -143,14 +74,12 @@ function Atlas() {
       var geo = svg.append('g');
       geo
         .selectAll('circle')
-        .data(tamraData)
+        .data(jeju_1x)
         .enter()
         .append('circle')
         .attr('cx', (d) => d.point[0] * 1800)
         .attr('cy', (d) => d.point[1] * 1800)
-        //.attr('cx', (d) => (d[0]-125.8) * 1000)
-        //.attr('cy', (d) => (d[1]-33) * 1000)
-        .attr('r', 2)
+        .attr('r', 3)
         .attr('fill', 'orange');
 
       /*
@@ -167,10 +96,12 @@ function Atlas() {
         geo.attr("transform", transform);
       }
 
-      svg.call(d3.zoom()
-        .extent([[0, 0], [w, h]])
-        .scaleExtent([1, 6])
-        .on("zoom", zoomed));
+      svg.call(
+        d3.zoom()
+          .extent([[0, 0], [w, h]])
+          .scaleExtent([1, 6])
+          .on("zoom", zoomed)
+      );
     }
     drawMap();
   });
