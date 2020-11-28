@@ -38,7 +38,7 @@ function Atlas() {
                     ),
                     'half': await makeGridInfo(
                         "https://raw.githubusercontent.com/Edw2n/geojson-prac/master/tamra-square-half.geojson",
-                        "https://lh3.googleusercontent.com/proxy/5bAQCC1wqCWuLDk6g70SEWUEoqC1Pec7fc3pGEFSVQx3iGOy0VHQYZlyOkAVclYwSt3cU1OkPvBavHZU-isNQMrHebWwoUkagcld531HIn4y96HmVYhhVvOKnd8",
+                        "https://seedling.kr/data/shop/item/1506491618_s",
                         3,
                         5,
                         'quarter',
@@ -98,7 +98,7 @@ function Atlas() {
 
                 svg.call(d3.zoom()
                     .scaleExtent([1, 60])
-                    .on("zoom", zoomed));
+                    .on("zoom", zoomed))//.attr("transform", "translate(100,50)scale(.5,.5)");
 
                 function zoomed({transform}) {
                     console.log('zoom')
