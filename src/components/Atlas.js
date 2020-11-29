@@ -153,7 +153,19 @@ function Atlas() {
         }
       }
 
-      function brushed() {
+      function brushed({transform}) {
+        let selection = d3.brushSelection(this);
+        if(selection===null){
+          geo.attr("stroke", "#e0cabc"); // make general grid
+        } else {
+          let x0 = selection[0][0];
+          let y0 = selection[0][1];
+          let x1 = selection[1][0];
+          let y1 = selection[1][1];
+          geo.selectAll('rect')
+            .attr("stroke", d => x0 <= d.point[0] * 1800 && d.point[0] * 1800 <= x1 && y0 <= d.point[1] * 1800 && d.point[1] * 1800 <= y1 ? "red" : "#e0cabc");
+        }
+
       }
 
       svg.call(
@@ -168,6 +180,7 @@ function Atlas() {
         .on("start brush", brushed);
 
       svg.append("g")
+        .attr("id", `selected`)
         .call(brush)
     }
 
