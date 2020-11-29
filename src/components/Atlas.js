@@ -140,7 +140,6 @@ function Atlas() {
         .attr('fill', `url(#${level})`);
 
       function zoomed({transform}) {
-        geo.attr("transform", transform);
         const zoomState = d3.zoomTransform(svg.node());
         console.log(zoomState.k);
         if (zoomState.k > gridInfo[level].end) {
