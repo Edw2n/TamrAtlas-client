@@ -163,7 +163,7 @@ function Atlas() {
           let x1 = selection[1][0];
           let y1 = selection[1][1];
           geo.selectAll('rect')
-            .attr("stroke", d => x0 <= d.point[0] * 1800 && d.point[0] * 1800 <= x1 && y0 <= d.point[1] * 1800 && d.point[1] * 1800 <= y1 ? "red" : "#e0cabc");
+            .attr("stroke", d => x0 < d.point[0] * 1800 && d.point[0] * 1800 < x1 && y0 < d.point[1] * 1800 && d.point[1] * 1800 < y1 ? "red" : "#e0cabc");
         }
 
       }
