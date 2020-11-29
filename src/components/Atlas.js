@@ -74,7 +74,7 @@ function Atlas() {
             "/jeju-1x.json",
             "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
             1,
-            3,
+            2.5,
             'half',
             'none',
             16.75,
@@ -83,7 +83,7 @@ function Atlas() {
           'half': await makeGridInfo(
             "/jeju-2x.json",
             "https://seedling.kr/data/shop/item/1506491618_s",
-            3,
+            2.5,
             5,
             'quarter',
             'vanila',
