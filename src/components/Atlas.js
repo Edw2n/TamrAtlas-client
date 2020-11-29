@@ -154,12 +154,22 @@ function Atlas() {
         }
       }
 
+      function brushed() {
+      }
+
       svg.call(
         d3.zoom()
           .extent([[0, 0], [w, h]])
           .scaleExtent([1, 60])
           .on("zoom", zoomed)
       );
+
+      const brush = d3.brush()
+        .filter(event => event.ctrlKey)
+        .on("start brush", brushed);
+
+      svg.append("g")
+        .call(brush)
     }
 
     drawMap();
