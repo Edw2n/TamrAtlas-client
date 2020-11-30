@@ -11,7 +11,7 @@ function generateMountain(layers) {
   const outerStep = (layers + 1) * 0.5;
 
   for (let i = 1; i < layers; i += 1) {
-    const size = 1 - i * 0.15;
+    const size = 1 - i * 0.1;
 
     // Draw edges
     for (let j = -innerStep; j <= innerStep; j += 1) {
@@ -130,9 +130,26 @@ function Atlas() {
         .append('rect')
         .attr('x', (d) => d.point[0] * 1800)
         .attr('y', (d) => d.point[1] * 1800)
-        .attr('width', gridInfo[level].width)
-        .attr('height', gridInfo[level].height)
+        .attr('width', gridInfo[level].width/5)
+        .attr('height', gridInfo[level].height/5)
         .attr('fill', 'orange');
+
+
+      const mountains = [generateMountain(6)];
+      svg
+        .append('g')
+        .selectAll('rect')
+        .data(mountains[0])
+        .enter()
+        .append('rect')
+        .attr('x', (d) => 1007 + 16.75 * (d.x - d.size / 2) )
+        .attr('y', (d) => 500 + 16.75 * (d.y - d.size / 2) )
+        .attr('width', (d) => 16.75 * d.size )
+        .attr('height', (d) => 16.75 * d.size )
+        .attr('fill', () => {
+          let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
+        	return color;
+        });
 
       function zoomed({transform}) {
         geo.attr("transform", transform);
