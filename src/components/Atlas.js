@@ -129,10 +129,11 @@ function Atlas() {
 
       var geo = svg.append('g');
       geo
-        .selectAll('rect')
+        .selectAll('.grid')
         .data(gridMap)
         .enter()
         .append('rect')
+        .attr('class', 'grid')
         .attr('x', (d) => d.point[0] * 1800)
         .attr('y', (d) => d.point[1] * 1800)
         .attr('width', gridInfo[level].width)
@@ -153,17 +154,37 @@ function Atlas() {
         }
       }
 
-      function brushed({transform}) {
-        let selection = d3.brushSelection(this);
-        if(selection===null){
-          geo.attr("stroke", "#e0cabc"); // make general grid
+      function isSelected(data, selection) {
+
+        let x0 = selection[0][0];
+        let y0 = selection[0][1];
+        let x1 = selection[1][0];
+        let y1 = selection[1][1];
+
+        let [d_x, d_y] = [data.point[0] * 1800, data.point[1] * 1800];
+
+        //TODO: change each data with spatial-selected class
+
+        if (x0 < d_x && d_x < x1 && y0 < d_y && d_y < y1) {
+          return true;
         } else {
-          let x0 = selection[0][0];
-          let y0 = selection[0][1];
-          let x1 = selection[1][0];
-          let y1 = selection[1][1];
-          geo.selectAll('rect')
-            .attr("stroke", d => x0 < d.point[0] * 1800 && d.point[0] * 1800 < x1 && y0 < d.point[1] * 1800 && d.point[1] * 1800 < y1 ? "red" : "#e0cabc");
+          return false;
+        }
+
+
+      }
+
+      function brushed({transform}) {
+        let selection = d3.brushSelection(this); // selection 범위를 반올림해서 면적 넓히면 제대로 겹칠듯
+        if (selection === null) {
+          geo.selectAll('.grid')
+            .attr("stroke", "#e0cabc")
+            .attr('stroke-width', 0.5); // make general grid
+        } else { // brush end 때 해야할 듯
+
+          geo.selectAll('.grid')
+            .attr("stroke", d => isSelected(d,selection) ? "red" : "#e0cabc")
+            .attr('stroke-width', 0.5);
         }
 
       }
@@ -179,9 +200,16 @@ function Atlas() {
         .filter(event => event.ctrlKey)
         .on("start brush", brushed);
 
-      svg.append("g")
-        .attr("id", `selected`)
+      geo.append("g")
+        .attr("class", `spatial-brush`)
         .call(brush)
+
+      function resetBrush() {
+        // console.log( d3.selectAll('#spatial-brush'))
+        //d3.selectAll('#spatial-brush').call(brush.clear());
+      }
+
+      svg.on('click', resetBrush)
     }
 
     drawMap();
