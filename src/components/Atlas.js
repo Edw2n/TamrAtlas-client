@@ -5,41 +5,36 @@ import './Atlas.css';
 function generateMountain(layers) {
   const grid = 20;
   const data = [];
-  const numGrids = layers + 2 * (layers - 1);
-  data.push({
-    x: grid * (numGrids / 2),
-    y: grid * (numGrids / 2),
-    size: grid * (layers - 0.1)
-  });
+  data.push({ x: 0, y: 0, size: layers });
+
+  const innerStep = (layers - 1) * 0.5;
+  const outerStep = (layers + 1) * 0.5;
 
   for (let i = 1; i < layers; i += 1) {
-    const size = grid * (1 - i * 0.15);
+    const size = 1 - i * 0.15;
 
-    // Top
-    for (let j = layers - 0.5; j <= numGrids - layers + 0.5; j += 1) {
-      const min = grid * (layers - i - 0.5);
-      const max = grid * numGrids - min;
-      data.push({x: grid * j, y: min, size});
-      data.push({x: grid * j, y: max, size});
-      data.push({x: min, y: grid * j, size});
-      data.push({x: max, y: grid * j, size});
+    // Draw edges
+    for (let j = -innerStep; j <= innerStep; j += 1) {
+      const min = -innerStep - i;
+      const max = innerStep + i;
+      data.push({x: j, y: min, size}); // top
+      data.push({x: j, y: max, size}); // bottom
+      data.push({x: min, y: j, size}); // left
+      data.push({x: max, y: j, size}); // right
     }
 
+    // Draw corners
     for (let j = 0; j < i - 1; j += 1) {
-      const min = layers - i + 0.5;
-      const max = layers - 1.5;
-      data.push({x: grid * (min + j), y: grid * (max - j), size});
-      data.push({x: grid * (numGrids - min - j), y: grid * (max - j), size});
-      data.push({x: grid * (min + j), y: grid * (numGrids - max + j), size});
-      data.push({
-        x: grid * (numGrids - min - j),
-        y: grid * (numGrids - max + j),
-        size
-      });
+      const min = outerStep;
+      const max = outerStep + (i - 2);
+      data.push({ x: -(min + j), y: max - j, size }); // bottom left
+      data.push({ x: min + j, y: max - j, size }); // bottom right
+      data.push({ x: min + j, y: -(max - j), size }); // top right
+      data.push({ x: -(min + j), y: -(max - j), size }); // top left
     }
   }
 
-  return data
+  return data;
 }
 
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
@@ -137,7 +132,7 @@ function Atlas() {
         .attr('y', (d) => d.point[1] * 1800)
         .attr('width', gridInfo[level].width)
         .attr('height', gridInfo[level].height)
-        .attr('fill', `url(#${level})`);
+        .attr('fill', 'orange');
 
       function zoomed({transform}) {
         geo.attr("transform", transform);
