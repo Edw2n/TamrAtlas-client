@@ -38,8 +38,9 @@ function generateMountain(layers) {
 }
 
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
+  const jsonData = d3.json(jsonUrl);
   let info = {
-    grid: await d3.json(jsonUrl),
+    gridData: await d3.json(jsonUrl),
     fill: imgUrl,
     start: start,
     end: end,
@@ -66,7 +67,7 @@ function Atlas() {
       if (!gridInfo) {
         gridInfo = {
           'vanila': await makeGridInfo(
-            "/jeju-1x.json",
+            "/jeju-1x-array.json",
             "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
             1,
             3,
@@ -76,7 +77,7 @@ function Atlas() {
             16.75
           ),
           'half': await makeGridInfo(
-            "/jeju-2x.json",
+            "/jeju-2x-array.json",
             "https://seedling.kr/data/shop/item/1506491618_s",
             3,
             5,
@@ -86,7 +87,7 @@ function Atlas() {
             8.44
           ),
           'quarter': await makeGridInfo(
-            "/jeju-4x.json",
+            "/jeju-4x-array.json",
             "https://image.yes24.com/blogimage/blog/k/s/kse10034/5a33xTQt.jpg",
             5,
             80,
@@ -106,7 +107,7 @@ function Atlas() {
         .selectAll('*').remove();
 
       // load data
-      const gridMap = gridInfo[level].grid;
+      const gridData = gridInfo[level].gridData;
 
       // draw map
       svg.append("defs")
@@ -121,16 +122,15 @@ function Atlas() {
         .attr("xlink:href", // use square size image
           gridInfo[level].fill);
 
-
       const atlas = svg.append('g');
       const map = atlas.append('g');
       map
         .selectAll('rect')
-        .data(gridMap)
+        .data([].concat( ...gridData.array).filter(d => d))
         .enter()
         .append('rect')
-        .attr('x', (d) => d.point[0] * 1800)
-        .attr('y', (d) => d.point[1] * 1800)
+        .attr('x', (d) => d.index[1] * 18 + 300)
+        .attr('y', (d) => d.index[0] * 18 + 150)
         .attr('width', gridInfo[level].width/5)
         .attr('height', gridInfo[level].height/5)
         .attr('fill', 'orange');
