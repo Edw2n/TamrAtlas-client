@@ -190,6 +190,7 @@ function Atlas() {
         .data(gridData.array)
         .enter()
         .append('rect')
+        .attr('class', 'grid')
         .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size/6)
         .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size/6)
         .attr('width', gridInfo[level].size/3)
@@ -262,12 +263,12 @@ function Atlas() {
       function brushed({transform}) {
         let selection = d3.brushSelection(this); // selection 범위를 반올림해서 면적 넓히면 제대로 겹칠듯
         if (selection === null) {
-          geo.selectAll('.grid')
+          map.selectAll('.grid')
             .attr("stroke", "#e0cabc")
             .attr('stroke-width', 0.5); // make general grid
         } else { // brush end 때 해야할 듯
 
-          geo.selectAll('.grid')
+          map.selectAll('.grid')
             .attr("stroke", d => isSelected(d,selection) ? "red" : "#e0cabc")
             .attr('stroke-width', 0.5);
         }
@@ -285,7 +286,7 @@ function Atlas() {
         .filter(event => event.ctrlKey)
         .on("start brush", brushed);
 
-      geo.append("g")
+      map.append("g")
         .attr("class", `spatial-brush`)
         .call(brush)
 
