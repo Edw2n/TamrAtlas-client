@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import * as d3 from 'd3';
 import './Atlas.css';
 
-async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
+async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
   let info = {
     gridData: await d3.json(jsonUrl),
@@ -11,8 +11,7 @@ async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
     end: end,
     prev: prev,
     next: next,
-    width: w,
-    height: h
+    size: size
   };
 
   return info;
@@ -119,8 +118,7 @@ function Atlas() {
             3,
             'half',
             'none',
-            16.75,
-            16.75
+            18
           ),
           'half': await makeGridInfo(
             "/jeju-2x-array.json",
@@ -129,8 +127,7 @@ function Atlas() {
             5,
             'quarter',
             'vanila',
-            8.44,
-            8.44
+            9
           ),
           'quarter': await makeGridInfo(
             "/jeju-4x-array.json",
@@ -139,8 +136,7 @@ function Atlas() {
             80,
             'none',
             'half',
-            4.22,
-            4.22
+            4.5
           )
         };
       }
@@ -175,10 +171,10 @@ function Atlas() {
         .data(gridData.array)
         .enter()
         .append('rect')
-        .attr('x', (d) => d.index[1] * 18 + 300 - gridInfo[level].width/6)
-        .attr('y', (d) => d.index[0] * 18 + 150 - gridInfo[level].height/6)
-        .attr('width', gridInfo[level].width/3)
-        .attr('height', gridInfo[level].height/3)
+        .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size/6)
+        .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size/6)
+        .attr('width', gridInfo[level].size/3)
+        .attr('height', gridInfo[level].size/3)
         .attr('fill', 'orange');
 
 
@@ -200,10 +196,10 @@ function Atlas() {
             .data((d) => d.grids)
             .enter()
             .append('rect')
-            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * 18 + 300 )
-            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * 18 + 150 )
-            .attr('width', (d) => d.size * 18 )
-            .attr('height', (d) => d.size * 18 )
+            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300 )
+            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150 )
+            .attr('width', (d) => d.size * gridInfo[level].size )
+            .attr('height', (d) => d.size * gridInfo[level].size )
             .attr('fill', () => {
               let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
               return color;
