@@ -122,8 +122,9 @@ function Atlas() {
           gridInfo[level].fill);
 
 
-      var geo = svg.append('g');
-      geo
+      const atlas = svg.append('g');
+      const map = atlas.append('g');
+      map
         .selectAll('rect')
         .data(gridMap)
         .enter()
@@ -134,12 +135,11 @@ function Atlas() {
         .attr('height', gridInfo[level].height/5)
         .attr('fill', 'orange');
 
-
-      const mountains = [generateMountain(6)];
-      svg
+      const mountains = atlas.append('g');
+      mountains
         .append('g')
         .selectAll('rect')
-        .data(mountains[0])
+        .data(generateMountain(6))
         .enter()
         .append('rect')
         .attr('x', (d) => 1007 + 16.75 * (d.x - d.size / 2) )
@@ -152,7 +152,7 @@ function Atlas() {
         });
 
       function zoomed({transform}) {
-        geo.attr("transform", transform);
+        atlas.attr("transform", transform);
         const zoomState = d3.zoomTransform(svg.node());
         console.log(zoomState.k);
         if (zoomState.k > gridInfo[level].end) {
@@ -162,7 +162,7 @@ function Atlas() {
           setGrids(gridInfo[level].prev);
           console.log('scale down');
         } else {
-          geo.attr("transform", transform);
+          atlas.attr("transform", transform);
         }
       }
 
