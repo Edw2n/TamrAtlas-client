@@ -19,7 +19,7 @@ function geojson2array(geojson, gridMultiplier) {
       .scale(50);
     const [ x, y ] = projection([lonAvg, latAvg]);
     return {
-      coord: [lonAvg, latAvg],
+      coord: { lon: lonAvg, lat: latAvg },
       point: [x, y]
     }
   });
@@ -69,7 +69,13 @@ function geojson2array(geojson, gridMultiplier) {
     }
   })
 
-  return { rows, cols, array: dataArray };
+
+  return {
+    rows,
+    cols,
+    array: [].concat( ...dataArray).filter(d => d),
+    matrix: dataArray
+  };
 }
 
 args = process.argv.slice(2);
