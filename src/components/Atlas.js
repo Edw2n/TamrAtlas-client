@@ -2,41 +2,6 @@ import React, {useState} from 'react';
 import * as d3 from 'd3';
 import './Atlas.css';
 
-function generateMountain(layers) {
-  const grid = 20;
-  const data = [];
-  data.push({ x: 0, y: 0, size: layers });
-
-  const innerStep = (layers - 1) * 0.5;
-  const outerStep = (layers + 1) * 0.5;
-
-  for (let i = 1; i < layers; i += 1) {
-    const size = 1 - i * 0.1;
-
-    // Draw edges
-    for (let j = -innerStep; j <= innerStep; j += 1) {
-      const min = -innerStep - i;
-      const max = innerStep + i;
-      data.push({x: j, y: min, size}); // top
-      data.push({x: j, y: max, size}); // bottom
-      data.push({x: min, y: j, size}); // left
-      data.push({x: max, y: j, size}); // right
-    }
-
-    // Draw corners
-    for (let j = 0; j < i - 1; j += 1) {
-      const min = outerStep;
-      const max = outerStep + (i - 2);
-      data.push({ x: -(min + j), y: max - j, size }); // bottom left
-      data.push({ x: min + j, y: max - j, size }); // bottom right
-      data.push({ x: min + j, y: -(max - j), size }); // top right
-      data.push({ x: -(min + j), y: -(max - j), size }); // top left
-    }
-  }
-
-  return data;
-}
-
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
   const jsonData = d3.json(jsonUrl);
   let info = {
@@ -51,6 +16,87 @@ async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, w, h) {
   };
 
   return info;
+}
+
+function haversineDistance(coord1, coord2) {
+  const { lat: lat1, lon: lon1 } = coord1;
+  const { lat: lat2, lon: lon2 } = coord2;
+
+  // Haversine fomula
+  // https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
+  const R = 6371; // km
+  const x1 = lat2 - lat1;
+  const dLat = x1 / 180 * Math.PI;
+  const x2 = lon2 - lon1;
+  const dLon = x2 / 180 * Math.PI;;
+  const a
+    = Math.sin(dLat/2) * Math.sin(dLat/2)
+    + Math.cos(lat1 / 180 * Math.PI) * Math.cos(lat2 / 180 * Math.PI)
+    * Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const distance = R * c;
+
+  return distance;
+}
+
+function mountain(layers, photos, coord, gridData) {
+  function generateMountain(layers) {
+    const grid = 20;
+    const data = [];
+    data.push({ x: 0, y: 0, size: layers });
+
+    const innerStep = (layers - 1) * 0.5;
+    const outerStep = (layers + 1) * 0.5;
+
+    for (let i = 1; i < layers; i += 1) {
+      const size = 1 - i * 0.1;
+
+      // Draw edges
+      for (let j = -innerStep; j <= innerStep; j += 1) {
+        const min = -innerStep - i;
+        const max = innerStep + i;
+        data.push({x: j, y: min, size}); // top
+        data.push({x: j, y: max, size}); // bottom
+        data.push({x: min, y: j, size}); // left
+        data.push({x: max, y: j, size}); // right
+      }
+
+      // Draw corners
+      for (let j = 0; j < i - 1; j += 1) {
+        const min = outerStep;
+        const max = outerStep + (i - 2);
+        data.push({ x: -(min + j), y: max - j, size }); // bottom left
+        data.push({ x: min + j, y: max - j, size }); // bottom right
+        data.push({ x: min + j, y: -(max - j), size }); // top right
+        data.push({ x: -(min + j), y: -(max - j), size }); // top left
+      }
+    }
+
+    return data;
+  }
+
+  let grids = generateMountain(layers);
+
+  // Find the nearest grid
+  let nearlest;
+  let minDistance = 100000;
+
+  gridData.array.forEach((d) => {
+    const dist = haversineDistance(coord, d.coord);
+
+    if (dist < minDistance) {
+      nearlest = d;
+      minDistance = dist;
+    }
+  });
+
+  let centerPos = nearlest.index;
+  if (layers % 2 === 0) {
+    centerPos[0] += 0.5;
+    centerPos[1] += 0.5;
+  }
+
+  return { centerPos, grids };
 }
 
 
@@ -126,35 +172,48 @@ function Atlas() {
       const map = atlas.append('g');
       map
         .selectAll('rect')
-        .data([].concat( ...gridData.array).filter(d => d))
+        .data(gridData.array)
         .enter()
         .append('rect')
-        .attr('x', (d) => d.index[1] * 18 + 300)
-        .attr('y', (d) => d.index[0] * 18 + 150)
-        .attr('width', gridInfo[level].width/5)
-        .attr('height', gridInfo[level].height/5)
+        .attr('x', (d) => d.index[1] * 18 + 300 - gridInfo[level].width/6)
+        .attr('y', (d) => d.index[0] * 18 + 150 - gridInfo[level].height/6)
+        .attr('width', gridInfo[level].width/3)
+        .attr('height', gridInfo[level].height/3)
         .attr('fill', 'orange');
+
+
+      const mountainData = [
+        mountain(3, [], { lon: 126.25, lat: 33.5 }, gridData),
+        mountain(8, [], { lon: 126.55, lat: 33.4 }, gridData),
+        mountain(4, [], { lon: 126.75, lat: 33.35 }, gridData),
+      ];
 
       const mountains = atlas.append('g');
       mountains
-        .append('g')
-        .selectAll('rect')
-        .data(generateMountain(6))
+        .selectAll('g')
+        .data(mountainData)
         .enter()
-        .append('rect')
-        .attr('x', (d) => 1007 + 16.75 * (d.x - d.size / 2) )
-        .attr('y', (d) => 500 + 16.75 * (d.y - d.size / 2) )
-        .attr('width', (d) => 16.75 * d.size )
-        .attr('height', (d) => 16.75 * d.size )
-        .attr('fill', () => {
-          let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
-        	return color;
+        .append('g')
+        .each(function(p, i) {
+          d3.select(this)
+            .selectAll('rect')
+            .data((d) => d.grids)
+            .enter()
+            .append('rect')
+            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * 18 + 300 )
+            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * 18 + 150 )
+            .attr('width', (d) => d.size * 18 )
+            .attr('height', (d) => d.size * 18 )
+            .attr('fill', () => {
+              let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
+              return color;
+            });
         });
+
 
       function zoomed({transform}) {
         atlas.attr("transform", transform);
         const zoomState = d3.zoomTransform(svg.node());
-        console.log(zoomState.k);
         if (zoomState.k > gridInfo[level].end) {
           setGrids(gridInfo[level].next);
           console.log('scale up');
