@@ -79,7 +79,6 @@ function mountain(layers, photos, coord, gridData) {
   // Find the nearest grid
   let nearlest;
   let minDistance = 100000;
-
   gridData.array.forEach((d) => {
     const dist = haversineDistance(coord, d.coord);
 
@@ -89,12 +88,26 @@ function mountain(layers, photos, coord, gridData) {
     }
   });
 
+  // Find the center position
   let centerPos = nearlest.index;
   if (layers % 2 === 0) {
     centerPos[0] += 0.5;
     centerPos[1] += 0.5;
   }
 
+  /*
+  // Move center if going outside of the map boundary
+  for (let i = -(layers - 1) / 2; i <= (layers - 1) / 2; i += 1) {
+    for (let j = -(layers - 1); j <= (layers - 1) / 2; j += 1) {
+      const row = Math.round(i + centerPos[0] - i);
+      const col = Math.round(i + centerPos[1] - j);
+      if (!gridData.matrix[row][col]) {
+
+      }
+    }
+  }*/
+
+  // Clip along the map boundary
   grids = grids.filter((g) => {
     const row = Math.round(g.y + centerPos[0]);
     const col = Math.round(g.x + centerPos[1]);
