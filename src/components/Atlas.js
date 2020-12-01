@@ -95,6 +95,12 @@ function mountain(layers, photos, coord, gridData) {
     centerPos[1] += 0.5;
   }
 
+  grids = grids.filter((g) => {
+    const row = Math.round(g.y + centerPos[0]);
+    const col = Math.round(g.x + centerPos[1]);
+    return gridData.matrix[row][col]; // filter out if undefined
+  });
+
   return { centerPos, grids };
 }
 
