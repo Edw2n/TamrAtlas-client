@@ -134,7 +134,7 @@ function Atlas() {
             "/jeju-1x-array.json",
             "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
             1,
-            3,
+            2.5,
             'half',
             'none',
             18
@@ -142,7 +142,7 @@ function Atlas() {
           'half': await makeGridInfo(
             "/jeju-2x-array.json",
             "https://seedling.kr/data/shop/item/1506491618_s",
-            3,
+            2.5,
             5,
             'quarter',
             'vanila',
@@ -227,7 +227,6 @@ function Atlas() {
 
 
       function zoomed({transform}) {
-        atlas.attr("transform", transform);
         const zoomState = d3.zoomTransform(svg.node());
         if (zoomState.k > gridInfo[level].end) {
           setGrids(gridInfo[level].next);
@@ -240,12 +239,62 @@ function Atlas() {
         }
       }
 
+      function isSelected(data, selection) {
+
+        let x0 = selection[0][0];
+        let y0 = selection[0][1];
+        let x1 = selection[1][0];
+        let y1 = selection[1][1];
+
+        let [d_x, d_y] = [data.point[0] * 1800, data.point[1] * 1800];
+
+        //TODO: change each data with spatial-selected class
+
+        if (x0 < d_x && d_x < x1 && y0 < d_y && d_y < y1) {
+          return true;
+        } else {
+          return false;
+        }
+
+
+      }
+
+      function brushed({transform}) {
+        let selection = d3.brushSelection(this); // selection 범위를 반올림해서 면적 넓히면 제대로 겹칠듯
+        if (selection === null) {
+          geo.selectAll('.grid')
+            .attr("stroke", "#e0cabc")
+            .attr('stroke-width', 0.5); // make general grid
+        } else { // brush end 때 해야할 듯
+
+          geo.selectAll('.grid')
+            .attr("stroke", d => isSelected(d,selection) ? "red" : "#e0cabc")
+            .attr('stroke-width', 0.5);
+        }
+
+      }
+
       svg.call(
         d3.zoom()
           .extent([[0, 0], [w, h]])
           .scaleExtent([1, 60])
           .on("zoom", zoomed)
       );
+
+      const brush = d3.brush()
+        .filter(event => event.ctrlKey)
+        .on("start brush", brushed);
+
+      geo.append("g")
+        .attr("class", `spatial-brush`)
+        .call(brush)
+
+      function resetBrush() {
+        // console.log( d3.selectAll('#spatial-brush'))
+        //d3.selectAll('#spatial-brush').call(brush.clear());
+      }
+
+      svg.on('click', resetBrush)
     }
 
     drawMap();
