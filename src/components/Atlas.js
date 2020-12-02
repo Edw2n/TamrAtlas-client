@@ -259,20 +259,20 @@ function Atlas() {
           mountains
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
+            .classed("selected", false);
         }
-        return tooltip.style("visibility", "hidden");
       }
 
       function isSelected(rect, selection) {
         let width = +rect.attr("width");
         let height = +rect.attr("height");
-        let mid_x = width/2 + Number(rect.attr("x"));
-        let mid_y = height/2 + Number(rect.attr("y"));
+        let mid_x = width / 2 + Number(rect.attr("x"));
+        let mid_y = height / 2 + Number(rect.attr("y"));
         if (
-          mid_x >= selection[0][0]-width/2 &&
-          mid_x <= selection[1][0]+width/2 &&
-          mid_y >= selection[0][1]-height/2 &&
-          mid_y <= selection[1][1]+height/2
+          mid_x >= selection[0][0] - width / 2 &&
+          mid_x <= selection[1][0] + width / 2 &&
+          mid_y >= selection[0][1] - height / 2 &&
+          mid_y <= selection[1][1] + height / 2
         ) {
           //TODO: change each data with spatial-selected class
           rect.classed("selected", true);
@@ -293,13 +293,17 @@ function Atlas() {
       }
 
       function brushEnd(e) {
-        console.log(e)
-        let counts = mountains.selectAll('.selected').size()
-
-        return tooltip.text(counts)
+        let counts = 0;
+        counts = mountains.selectAll('.selected').size()
+        console.log(counts)
+        if (mountains.selectAll('.selected').size()>0) {
+          return tooltip.text(counts)
             .style('top', e.sourceEvent.pageY - 10 + 'px')
             .style('left', e.sourceEvent.pageX + 10 + 'px')
-        .style("visibility", "visible");
+            .style("visibility", "visible")
+        }
+        return tooltip
+         .style("visibility", "hidden")
       }
 
       svg.call(
@@ -313,11 +317,12 @@ function Atlas() {
         .filter(event => event.ctrlKey)
         .on("start", brushStart)
         .on("brush", brushed)
-        .on("end",e=>brushEnd(e));
+        .on("end", e => brushEnd(e));
 
       mountains.append("g")
         .attr("class", `spatial-brush`)
         .call(brush)
+
       //.on('click',e=>resetBrush(e))
 
       function resetBrush(e) {
