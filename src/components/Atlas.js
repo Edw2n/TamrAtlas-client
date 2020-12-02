@@ -228,6 +228,18 @@ function Atlas() {
             });
         });
 
+      d3.selectAll('.tooltip').remove()
+
+      const tooltip = d3.select(".Atlas")
+        .append("div")
+        .attr('class', 'tooltip')
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style('background-color', 'lightgray')
+        .style('padding', '10px')
+        .text("a simple tooltip");
+
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
@@ -248,6 +260,7 @@ function Atlas() {
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
         }
+        return tooltip.style("visibility", "hidden");
       }
 
       function isSelected(rect, selection) {
@@ -262,9 +275,11 @@ function Atlas() {
           mid_y <= selection[1][1]+height/2
         ) {
           //TODO: change each data with spatial-selected class
+          rect.classed("selected", true);
           return true;
         }
         //TODO: change each data with spatial-non-selected class
+        rect.classed("selected", false);
         return false;
       }
 
@@ -277,6 +292,16 @@ function Atlas() {
         });
       }
 
+      function brushEnd(e) {
+        console.log(e)
+        let counts = mountains.selectAll('.selected').size()
+
+        return tooltip.text(counts)
+            .style('top', e.sourceEvent.pageY - 10 + 'px')
+            .style('left', e.sourceEvent.pageX + 10 + 'px')
+        .style("visibility", "visible");
+      }
+
       svg.call(
         d3.zoom()
           .extent([[0, 0], [w, h]])
@@ -287,15 +312,22 @@ function Atlas() {
       const brush = d3.brush()
         .filter(event => event.ctrlKey)
         .on("start", brushStart)
-        .on("brush", brushed);
+        .on("brush", brushed)
+        .on("end",e=>brushEnd(e));
 
       mountains.append("g")
         .attr("class", `spatial-brush`)
         .call(brush)
+      //.on('click',e=>resetBrush(e))
 
-      function resetBrush() {
-        // console.log( d3.selectAll('#spatial-brush'))
-        //d3.selectAll('#spatial-brush').call(brush.clear());
+      function resetBrush(e) {
+        //d3.brush().clear;
+        //d3.select(this).call(brush.move,null);
+        if (!e.ctrlKey) {
+          //selection = e.selection
+          //d3.selectAll('#spatial-brush').call(brush.move, null);
+          //d3.selectAll('#spatial-brush').call(brush.clear);
+        }
       }
 
       svg.on('click', resetBrush)
@@ -306,7 +338,7 @@ function Atlas() {
 
   return (
     <div>
-      <div>
+      <div className="Atlas">
         <svg id="mapCanvas"/>
       </div>
     </div>
