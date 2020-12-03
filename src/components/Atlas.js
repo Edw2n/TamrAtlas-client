@@ -126,6 +126,12 @@ function Atlas() {
   let gridInfo;
   const [level, setGrids] = useState(['vanila']);
 
+  let tooltipConfig = {
+    width : 50,
+    height : 30,
+    fontSize : 25
+  }
+
   React.useEffect(() => {
     async function drawMap() {
 
@@ -230,17 +236,6 @@ function Atlas() {
 
       d3.selectAll('.tooltip').remove()
 
-      const tooltip = d3.select(".Atlas")
-        .append("div")
-        .attr('class', 'tooltip')
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden")
-        .style('background-color', 'lightgray')
-        .style('padding', '10px')
-        .text("a simple tooltip");
-
-
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
         if (zoomState.k > gridInfo[level].end) {
@@ -295,11 +290,12 @@ function Atlas() {
       function brushEnd(e) {
         let counts = 0;
         counts = mountains.selectAll('.selected').size()
-        console.log(counts)
+        let selection_box = d3.selectAll('.spatial-brush > .selection')
+
         if (mountains.selectAll('.selected').size() > 0) {
-          return tooltip.text(counts)
-            .style('top', e.sourceEvent.pageY - 10 + 'px')
-            .style('left', e.sourceEvent.pageX + 10 + 'px')
+          tooltip.selectAll('text').text(counts)
+          return tooltip
+            .attr("transform","translate("+selection_box.attr("x")+","+(+selection_box.attr("y")-tooltipConfig.height)+")")
             .style("visibility", "visible")
         }
         return tooltip
@@ -312,7 +308,7 @@ function Atlas() {
           .scaleExtent([1, 60])
           .on("zoom", zoomed),
         d3.zoomIdentity
-          .scale(gridInfo[level].start*2)
+          .scale(gridInfo[level].start * 2)
       )
 
       const brush = d3.brush()
@@ -325,12 +321,36 @@ function Atlas() {
         .attr("class", `spatial-brush`)
         .call(brush)
 
+      const tooltip = d3.select(".spatial-brush")
+        .append('g')
+        .attr('class', 'tooltip')
+        .style("visibility", "hidden")
+
+      tooltip
+        .append("rect")
+        .attr('x',"0")
+        .attr('y',"0")
+        .attr("width", tooltipConfig.width)
+        .attr("height",tooltipConfig.height)
+        .attr('fill', 'lightgray')
+
+      tooltip.append('text')
+        .text('hi')
+        .attr('x',tooltipConfig.width/2)
+        .attr('y',tooltipConfig.height/2)
+        .attr('text-anchor','middle')
+        .attr('alignment-baseline',"central")
+        .attr('fill', 'black')
+        .attr('font-size',tooltipConfig.fontSize)
+
+
+
       //.on('click',e=>resetBrush(e))
 
       function resetBrush(e) {
         //d3.brush().clear;
         //d3.select(this).call(brush.move,null);
-        if (!e.ctrlKey) {
+        if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
           //d3.selectAll('#spatial-brush').call(brush.clear);
