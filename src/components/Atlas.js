@@ -18,8 +18,8 @@ async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
 }
 
 function haversineDistance(coord1, coord2) {
-  const { lat: lat1, lon: lon1 } = coord1;
-  const { lat: lat2, lon: lon2 } = coord2;
+  const {lat: lat1, lon: lon1} = coord1;
+  const {lat: lat2, lon: lon2} = coord2;
 
   // Haversine fomula
   // https://stackoverflow.com/questions/14560999/using-the-haversine-formula-in-javascript
@@ -27,12 +27,13 @@ function haversineDistance(coord1, coord2) {
   const x1 = lat2 - lat1;
   const dLat = x1 / 180 * Math.PI;
   const x2 = lon2 - lon1;
-  const dLon = x2 / 180 * Math.PI;;
+  const dLon = x2 / 180 * Math.PI;
+  ;
   const a
-    = Math.sin(dLat/2) * Math.sin(dLat/2)
+    = Math.sin(dLat / 2) * Math.sin(dLat / 2)
     + Math.cos(lat1 / 180 * Math.PI) * Math.cos(lat2 / 180 * Math.PI)
-    * Math.sin(dLon/2) * Math.sin(dLon/2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
 
   return distance;
@@ -42,7 +43,7 @@ function mountain(layers, photos, coord, gridData) {
   function generateMountain(layers) {
     const grid = 20;
     const data = [];
-    data.push({ x: 0, y: 0, size: layers });
+    data.push({x: 0, y: 0, size: layers});
 
     const innerStep = (layers - 1) * 0.5;
     const outerStep = (layers + 1) * 0.5;
@@ -64,10 +65,10 @@ function mountain(layers, photos, coord, gridData) {
       for (let j = 0; j < i - 1; j += 1) {
         const min = outerStep;
         const max = outerStep + (i - 2);
-        data.push({ x: -(min + j), y: max - j, size }); // bottom left
-        data.push({ x: min + j, y: max - j, size }); // bottom right
-        data.push({ x: min + j, y: -(max - j), size }); // top right
-        data.push({ x: -(min + j), y: -(max - j), size }); // top left
+        data.push({x: -(min + j), y: max - j, size}); // bottom left
+        data.push({x: min + j, y: max - j, size}); // bottom right
+        data.push({x: min + j, y: -(max - j), size}); // top right
+        data.push({x: -(min + j), y: -(max - j), size}); // top left
       }
     }
 
@@ -114,7 +115,7 @@ function mountain(layers, photos, coord, gridData) {
     return gridData.matrix[row][col]; // filter out if undefined
   });
 
-  return { centerPos, grids };
+  return {centerPos, grids};
 }
 
 
@@ -191,17 +192,17 @@ function Atlas() {
         .enter()
         .append('rect')
         .attr('class', 'grid')
-        .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size/6)
-        .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size/6)
-        .attr('width', gridInfo[level].size/3)
-        .attr('height', gridInfo[level].size/3)
+        .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size / 6)
+        .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size / 6)
+        .attr('width', gridInfo[level].size / 3)
+        .attr('height', gridInfo[level].size / 3)
         .attr('fill', 'orange');
 
 
       const mountainData = [
-        mountain(3, [], { lon: 126.25, lat: 33.5 }, gridData),
-        mountain(8, [], { lon: 126.55, lat: 33.4 }, gridData),
-        mountain(4, [], { lon: 126.75, lat: 33.35 }, gridData),
+        mountain(3, [], {lon: 126.25, lat: 33.5}, gridData),
+        mountain(8, [], {lon: 126.55, lat: 33.4}, gridData),
+        mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
       ];
 
       const mountains = atlas.append('g');
@@ -210,21 +211,34 @@ function Atlas() {
         .data(mountainData)
         .enter()
         .append('g')
-        .each(function(p, i) {
+        .each(function (p, i) {
           d3.select(this)
             .selectAll('rect')
             .data((d) => d.grids)
             .enter()
             .append('rect')
-            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300 )
-            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150 )
-            .attr('width', (d) => d.size * gridInfo[level].size )
-            .attr('height', (d) => d.size * gridInfo[level].size )
+            .classed("oreum-grid", true)
+            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300)
+            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150)
+            .attr('width', (d) => d.size * gridInfo[level].size)
+            .attr('height', (d) => d.size * gridInfo[level].size)
             .attr('fill', () => {
-              let color = '#'+Math.floor(Math.random() * Math.pow(2,32) ^ 0xffffff).toString(16).substr(-6);
+              let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             });
         });
+
+      d3.selectAll('.tooltip').remove()
+
+      const tooltip = d3.select(".Atlas")
+        .append("div")
+        .attr('class', 'tooltip')
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style('background-color', 'lightgray')
+        .style('padding', '10px')
+        .text("a simple tooltip");
 
 
       function zoomed({transform}) {
@@ -240,39 +254,56 @@ function Atlas() {
         }
       }
 
-      function isSelected(data, selection) {
-
-        let x0 = selection[0][0];
-        let y0 = selection[0][1];
-        let x1 = selection[1][0];
-        let y1 = selection[1][1];
-
-        let [d_x, d_y] = [data.point[0] * 1800, data.point[1] * 1800];
-
-        //TODO: change each data with spatial-selected class
-
-        if (x0 < d_x && d_x < x1 && y0 < d_y && d_y < y1) {
-          return true;
-        } else {
-          return false;
+      function brushStart() {
+        if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
+          mountains
+            .selectAll('.oreum-grid')
+            .attr("stroke", "none")
+            .classed("selected", false);
         }
-
-
       }
 
-      function brushed({transform}) {
-        let selection = d3.brushSelection(this); // selection 범위를 반올림해서 면적 넓히면 제대로 겹칠듯
-        if (selection === null) {
-          map.selectAll('.grid')
-            .attr("stroke", "#e0cabc")
-            .attr('stroke-width', 0.5); // make general grid
-        } else { // brush end 때 해야할 듯
-
-          map.selectAll('.grid')
-            .attr("stroke", d => isSelected(d,selection) ? "red" : "#e0cabc")
-            .attr('stroke-width', 0.5);
+      function isSelected(rect, selection) {
+        let width = +rect.attr("width");
+        let height = +rect.attr("height");
+        let mid_x = width / 2 + Number(rect.attr("x"));
+        let mid_y = height / 2 + Number(rect.attr("y"));
+        if (
+          mid_x >= selection[0][0] - width / 2 &&
+          mid_x <= selection[1][0] + width / 2 &&
+          mid_y >= selection[0][1] - height / 2 &&
+          mid_y <= selection[1][1] + height / 2
+        ) {
+          //TODO: change each data with spatial-selected class
+          rect.classed("selected", true);
+          return true;
         }
+        //TODO: change each data with spatial-non-selected class
+        rect.classed("selected", false);
+        return false;
+      }
 
+      function brushed() {
+        let selection = d3.brushSelection(this); // selection 범위를 반올림해서 면적 넓히면 제대로 겹칠듯
+
+        mountains.selectAll('.oreum-grid').each(function (d, i) {
+          let rect = d3.select(this);
+          rect.attr("stroke", isSelected(rect, selection) ? 'red' : 'none').attr('stroke-width', 1)
+        });
+      }
+
+      function brushEnd(e) {
+        let counts = 0;
+        counts = mountains.selectAll('.selected').size()
+        console.log(counts)
+        if (mountains.selectAll('.selected').size()>0) {
+          return tooltip.text(counts)
+            .style('top', e.sourceEvent.pageY - 10 + 'px')
+            .style('left', e.sourceEvent.pageX + 10 + 'px')
+            .style("visibility", "visible")
+        }
+        return tooltip
+         .style("visibility", "hidden")
       }
 
       svg.call(
@@ -284,15 +315,24 @@ function Atlas() {
 
       const brush = d3.brush()
         .filter(event => event.ctrlKey)
-        .on("start brush", brushed);
+        .on("start", brushStart)
+        .on("brush", brushed)
+        .on("end", e => brushEnd(e));
 
-      map.append("g")
+      mountains.append("g")
         .attr("class", `spatial-brush`)
         .call(brush)
 
-      function resetBrush() {
-        // console.log( d3.selectAll('#spatial-brush'))
-        //d3.selectAll('#spatial-brush').call(brush.clear());
+      //.on('click',e=>resetBrush(e))
+
+      function resetBrush(e) {
+        //d3.brush().clear;
+        //d3.select(this).call(brush.move,null);
+        if (!e.ctrlKey) {
+          //selection = e.selection
+          //d3.selectAll('#spatial-brush').call(brush.move, null);
+          //d3.selectAll('#spatial-brush').call(brush.clear);
+        }
       }
 
       svg.on('click', resetBrush)
@@ -303,7 +343,7 @@ function Atlas() {
 
   return (
     <div>
-      <div>
+      <div className="Atlas">
         <svg id="mapCanvas"/>
       </div>
     </div>
