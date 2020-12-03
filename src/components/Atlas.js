@@ -296,22 +296,24 @@ function Atlas() {
         let counts = 0;
         counts = mountains.selectAll('.selected').size()
         console.log(counts)
-        if (mountains.selectAll('.selected').size()>0) {
+        if (mountains.selectAll('.selected').size() > 0) {
           return tooltip.text(counts)
             .style('top', e.sourceEvent.pageY - 10 + 'px')
             .style('left', e.sourceEvent.pageX + 10 + 'px')
             .style("visibility", "visible")
         }
         return tooltip
-         .style("visibility", "hidden")
+          .style("visibility", "hidden")
       }
 
       svg.call(
         d3.zoom()
           .extent([[0, 0], [w, h]])
           .scaleExtent([1, 60])
-          .on("zoom", zoomed)
-      );
+          .on("zoom", zoomed),
+        d3.zoomIdentity
+          .scale(gridInfo[level].start*2)
+      )
 
       const brush = d3.brush()
         .filter(event => event.ctrlKey)
