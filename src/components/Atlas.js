@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import * as d3 from 'd3';
+import {select} from 'd3-transition';
 import './Atlas.css';
 
 let tooltipConfigVanila = {
@@ -258,6 +259,7 @@ function Atlas() {
         .data(mountainData)
         .enter()
         .append('g')
+        .attr('id', (d, i) => `mountain${i + 1}`)
         .each(function (p, i) {
           d3.select(this)
             .selectAll('rect')
@@ -479,22 +481,89 @@ function Atlas() {
         .data(top3Data)
         .join('g')
         .attr('transform', d => `translate(0,${10 + (d.rank - 1) * 50})`)
+        .on('mouseover', highlightMountain)
+        .on('mouseout', dehighlightMountain)
+        .on('click', brushMountain)
 
       bars
         .append('rect')
+        .classed('top3-bar', true)
         .attr('x', 0)
         .attr('y', 0)
         .attr('width', d => d.value)
         .attr('height', 30)
-      
+
       bars
         .append('text')
+        .classed('top3-text', true)
         .text(d => d.region)
-        .attr('x', d => d.value)
+        .attr('x', d => d.value + 5)
         .attr('y', 15)
         .attr('fill', '#000000')
         .attr('font-size', 25)
         .attr('alignment-baseline', "central")
+
+      function highlightMountain() {
+        let hoveredGroup = d3.select(this)
+
+        let top3 = top3BarChart
+          .selectAll('g')
+
+        top3.selectAll('.top3-bar,.top3-text')
+          .classed('unhovered', true);
+
+        hoveredGroup
+          .transition()
+          .delay(1000)
+          .call(function () {
+            hoveredGroup
+              .selectAll('.top3-bar,.top3-text')
+              .classed('unhovered', false)
+              .classed('hovered', true);
+          })
+
+        // Mountain 하이라이트
+
+      }
+
+      function dehighlightMountain() {
+        let hoveredGroup = d3.select(this)
+
+        let top3 = top3BarChart
+          .selectAll('g')
+
+        top3.selectAll('.top3-bar,.top3-text')
+          .classed('unhovered', false);
+
+        hoveredGroup
+          .selectAll('.top3-bar,.top3-text')
+          .classed('hovered', false)
+
+        // Mountain de하이라이트
+      }
+
+      function brushMountain() {
+        let selectedGroup = d3.select(this)
+        let left = top3BarChart.selectAll('g').filter(d => d.rank !== selectedGroup.data()[0].rank)
+        selectedGroup.classed('selected', !selectedGroup.classed('selected'))
+
+        selectedGroup
+          .transition()
+          .delay(1000)
+          .call(function () {
+            if (selectedGroup.classed('selected')) {
+              left
+                .classed('selected',false)
+                .selectAll('.top3-bar,.top3-text')
+                .classed('selected', false)
+            }
+
+            selectedGroup
+              .selectAll('.top3-bar,.top3-text')
+              .classed('selected', selectedGroup.classed('selected'))
+          })
+
+      }
 
     }
 
