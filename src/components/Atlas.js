@@ -352,6 +352,8 @@ function Atlas() {
 
       function detailClicked() {
         let rect = d3.select(this);
+
+        console.log('in detailClicked')
         
         let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
         let y = Number(rect.attr('y'));
@@ -417,6 +419,11 @@ function Atlas() {
       function resetBrush(e) {
         //d3.brush().clear;
         //d3.select(this).call(brush.move,null);
+
+        if(e.srcElement.classList[0]!== "oreum-grid"){
+          detailsPopUP.
+             style('visibility','hidden');
+        }
 
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
           d3.selectAll('.spatial-brush').lower();
