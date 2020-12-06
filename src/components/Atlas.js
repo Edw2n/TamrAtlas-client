@@ -2,6 +2,17 @@ import React, {useState} from 'react';
 import * as d3 from 'd3';
 import './Atlas.css';
 
+let tooltipConfigVanila = {
+  width: 50,
+  height: 30,
+  fontSize: 25
+}
+
+let popUpConfigVanila = {
+  length: 200,
+  fontSize: 10
+}
+
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
   let info = {
@@ -123,20 +134,11 @@ function Atlas() {
   let w = 2000;
   let h = 1100;
 
+  let tooltipConfig = {}
+  let popUpConfig = {}
+
   let gridInfo;
   const [level, setGrids] = useState(['vanila']);
-
-  let tooltipConfig = {
-    width: 50,
-    height: 30,
-    fontSize: 25
-  }
-
-  let popUpConfig = {
-
-    length: 200,
-    fontSize: 10
-  }
 
   React.useEffect(() => {
     async function drawMap() {
@@ -172,6 +174,16 @@ function Atlas() {
           )
         };
       }
+
+      for (let key in tooltipConfigVanila){
+        tooltipConfig[key]= tooltipConfigVanila[key]/gridInfo[level].start;
+      }
+
+      for (let key in popUpConfigVanila){
+        popUpConfig[key]= popUpConfigVanila[key]/gridInfo[level].start;
+      }
+
+
       const svg = d3.select('#mapCanvas');
       svg
         .attr("preserveAspectRatio", "xMinYMin meet")
@@ -296,9 +308,9 @@ function Atlas() {
       }
 
       function brushStart() {
+        tooltip.style("visibility", "hidden");
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
-          console.log('bye')
           mountains
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
@@ -352,23 +364,22 @@ function Atlas() {
 
       function detailClicked() {
         let rect = d3.select(this);
-        console.log(rect.attr('x'), rect.attr('y'))
+
         let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
         let y = Number(rect.attr('y'));
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
-          .select('text') 
+          .select('text')
           .text('서귀포, 대한민국 👍563') // 주소 + 좋아요 로 수정
         detailsPopUP
           .select('a')
           .attr('xlink:href', 'https://www.instagram.com/p/CISn7CPn02Z/')
           .select('image')
-          .attr('xlink:href','https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
+          .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
 
-        // 해당 사각형 선택된 표시로 바꾸기
+        // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
         return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
           .style("visibility", "visible")
-
       }
 
       svg.call(
@@ -419,14 +430,18 @@ function Atlas() {
         //d3.brush().clear;
         //d3.select(this).call(brush.move,null);
 
+        if (e.srcElement.classList[0] !== "oreum-grid") {
+          detailsPopUP.style('visibility', 'hidden');
+        }
+
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
           d3.selectAll('.spatial-brush').lower();
-          console.log('hi')
           // selection 을 0으로 만들면 될듯
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
           //d3.selectAll('.spatial-brush').call(brush.clear);
         }
+
       }
 
       svg.on('click', resetBrush)
