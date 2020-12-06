@@ -296,9 +296,9 @@ function Atlas() {
       }
 
       function brushStart() {
+        tooltip.style("visibility", "hidden");
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
-          console.log('bye')
           mountains
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
@@ -352,7 +352,7 @@ function Atlas() {
 
       function detailClicked() {
         let rect = d3.select(this);
-        console.log(rect.attr('x'), rect.attr('y'))
+        
         let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
         let y = Number(rect.attr('y'));
         // 사진, 주소, 좋아요, url 수정
@@ -365,10 +365,9 @@ function Atlas() {
           .select('image')
           .attr('xlink:href','https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
 
-        // 해당 사각형 선택된 표시로 바꾸기
+        // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
         return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
           .style("visibility", "visible")
-
       }
 
       svg.call(
@@ -421,12 +420,12 @@ function Atlas() {
 
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
           d3.selectAll('.spatial-brush').lower();
-          console.log('hi')
           // selection 을 0으로 만들면 될듯
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
           //d3.selectAll('.spatial-brush').call(brush.clear);
         }
+
       }
 
       svg.on('click', resetBrush)
