@@ -37,5 +37,10 @@
     stroke: #12677b;
 }
 
+.highlighted {
+    stroke: red;
+    stroke-width:2px;
+}
+
 
 

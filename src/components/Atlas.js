@@ -505,6 +505,7 @@ function Atlas() {
 
       function highlightMountain() {
         let hoveredGroup = d3.select(this)
+        let clusterNum = hoveredGroup.data()[0].clusterNumber;
 
         let top3 = top3BarChart
           .selectAll('g')
@@ -520,14 +521,20 @@ function Atlas() {
               .selectAll('.top3-bar,.top3-text')
               .classed('unhovered', false)
               .classed('hovered', true);
+
+            // Mountain 하이라이트
+            mountains
+              .select(`#mountain${clusterNum}`)
+              .selectAll('.oreum-grid')
+              .classed('highlighted',true)
           })
 
-        // Mountain 하이라이트
 
       }
 
       function dehighlightMountain() {
         let hoveredGroup = d3.select(this)
+        let clusterNum = hoveredGroup.data()[0].clusterNumber;
 
         let top3 = top3BarChart
           .selectAll('g')
@@ -538,8 +545,15 @@ function Atlas() {
         hoveredGroup
           .selectAll('.top3-bar,.top3-text')
           .classed('hovered', false)
+          .transition()
+          .delay(1000)
+          .call(function(){ // Mountain de하이라이트
+            mountains
+              .select(`#mountain${clusterNum}`)
+              .selectAll('.oreum-grid')
+              .classed('highlighted',false)
+          })
 
-        // Mountain de하이라이트
       }
 
       function brushMountain() {
