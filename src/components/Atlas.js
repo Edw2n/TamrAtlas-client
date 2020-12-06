@@ -175,12 +175,12 @@ function Atlas() {
         };
       }
 
-      for (let key in tooltipConfigVanila){
-        tooltipConfig[key]= tooltipConfigVanila[key]/gridInfo[level].start;
+      for (let key in tooltipConfigVanila) {
+        tooltipConfig[key] = tooltipConfigVanila[key] / gridInfo[level].start;
       }
 
-      for (let key in popUpConfigVanila){
-        popUpConfig[key]= popUpConfigVanila[key]/gridInfo[level].start;
+      for (let key in popUpConfigVanila) {
+        popUpConfig[key] = popUpConfigVanila[key] / gridInfo[level].start;
       }
 
 
@@ -227,6 +227,28 @@ function Atlas() {
         mountain(3, [], {lon: 126.25, lat: 33.5}, gridData),
         mountain(8, [], {lon: 126.55, lat: 33.4}, gridData),
         mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
+      ];
+
+      const top3Data = [ // need to initialize when searched
+        {
+          rank: 1,
+          region: '애월읍',
+          value: 309,
+          clusterNumber: 2
+        },
+        {
+          rank: 2,
+          region: '서산면',
+          value: 61,
+          clusterNumber: 3
+        }
+        ,
+        {
+          rank: 3,
+          region: '중문읍',
+          value: 17,
+          clusterNumber: 1
+        }
       ];
 
       const mountains = atlas.append('g')
@@ -436,6 +458,7 @@ function Atlas() {
 
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
           d3.selectAll('.spatial-brush').lower();
+
           // selection 을 0으로 만들면 될듯
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
@@ -445,6 +468,34 @@ function Atlas() {
       }
 
       svg.on('click', resetBrush)
+
+      const top3BarChart = svg
+        .append('g')
+        .attr('id', 'top3')
+        .attr('transform', 'translate(0,0)')
+
+      const bars = top3BarChart
+        .selectAll('g')
+        .data(top3Data)
+        .join('g')
+        .attr('transform', d => `translate(0,${10 + (d.rank - 1) * 50})`)
+
+      bars
+        .append('rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', d => d.value)
+        .attr('height', 30)
+      
+      bars
+        .append('text')
+        .text(d => d.region)
+        .attr('x', d => d.value)
+        .attr('y', 15)
+        .attr('fill', '#000000')
+        .attr('font-size', 25)
+        .attr('alignment-baseline', "central")
+
     }
 
     drawMap();
