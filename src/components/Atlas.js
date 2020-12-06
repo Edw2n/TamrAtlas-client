@@ -127,9 +127,15 @@ function Atlas() {
   const [level, setGrids] = useState(['vanila']);
 
   let tooltipConfig = {
-    width : 50,
-    height : 30,
-    fontSize : 25
+    width: 50,
+    height: 30,
+    fontSize: 25
+  }
+
+  let popUpConfig = {
+
+    length: 200,
+    fontSize: 10
   }
 
   React.useEffect(() => {
@@ -211,7 +217,8 @@ function Atlas() {
         mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
       ];
 
-      const mountains = atlas.append('g');
+      const mountains = atlas.append('g')
+
       mountains
         .selectAll('g')
         .data(mountainData)
@@ -231,10 +238,47 @@ function Atlas() {
             .attr('fill', () => {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
-            });
+            })
+            .on('mouseover',detailClicked);
+
         });
 
       d3.selectAll('.tooltip').remove()
+
+      const detailsPopUP = mountains
+        .append('g')
+        .attr('class', 'popup')
+        .style("visibility", "hidden")
+        .attr('x', "0")
+        .attr('y', "0")
+        .attr("width", popUpConfig.length)
+        .attr("height", (popUpConfig.length/10)*11)
+
+      detailsPopUP
+        .append("rect")
+        .attr('x', "0")
+        .attr('y', "0")
+        .attr("width", popUpConfig.length)
+        .attr("height", popUpConfig.length/10)
+        .attr('fill', '#ffffff')
+
+      detailsPopUP.append('text')
+        .text('제주 서귀포시 안덕면 병악로 166          👍563')
+        .attr('x', popUpConfig.length / 2)
+        .attr('y', popUpConfig.length/20)
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', "central")
+        .attr('fill', 'black')
+        .attr('font-size', popUpConfig.fontSize)
+
+      detailsPopUP
+        .append("svg:image")
+        .attr('x', "0")
+        .attr('y', popUpConfig.length/10)
+        .attr("width", popUpConfig.length)
+        .attr("height", popUpConfig.length)
+        .attr('xlink:href', 'http://jetprogramme.org/wp-content/uploads/2017/03/Square-Instagram-Logo.png')
+
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
@@ -251,6 +295,8 @@ function Atlas() {
 
       function brushStart() {
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
+          d3.selectAll('.spatial-brush').raise();
+          console.log('bye')
           mountains
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
@@ -295,11 +341,21 @@ function Atlas() {
         if (mountains.selectAll('.selected').size() > 0) {
           tooltip.selectAll('text').text(counts)
           return tooltip
-            .attr("transform","translate("+selection_box.attr("x")+","+(+selection_box.attr("y")-tooltipConfig.height)+")")
+            .attr("transform", "translate(" + selection_box.attr("x") + "," + (+selection_box.attr("y") - tooltipConfig.height) + ")")
             .style("visibility", "visible")
         }
         return tooltip
           .style("visibility", "hidden")
+      }
+
+      function detailClicked(){
+         let rect = d3.select(this);
+         console.log(rect.attr('x'),rect.attr('y'))
+        let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
+        let y = Number(rect.attr('y'));
+         return detailsPopUP.attr("transform", "translate("+x+","+y+")")
+            .style("visibility", "visible")
+
       }
 
       svg.call(
@@ -328,21 +384,20 @@ function Atlas() {
 
       tooltip
         .append("rect")
-        .attr('x',"0")
-        .attr('y',"0")
+        .attr('x', "0")
+        .attr('y', "0")
         .attr("width", tooltipConfig.width)
-        .attr("height",tooltipConfig.height)
+        .attr("height", tooltipConfig.height)
         .attr('fill', 'lightgray')
 
       tooltip.append('text')
         .text('hi')
-        .attr('x',tooltipConfig.width/2)
-        .attr('y',tooltipConfig.height/2)
-        .attr('text-anchor','middle')
-        .attr('alignment-baseline',"central")
+        .attr('x', tooltipConfig.width / 2)
+        .attr('y', tooltipConfig.height / 2)
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', "central")
         .attr('fill', 'black')
-        .attr('font-size',tooltipConfig.fontSize)
-
+        .attr('font-size', tooltipConfig.fontSize)
 
 
       //.on('click',e=>resetBrush(e))
@@ -350,10 +405,14 @@ function Atlas() {
       function resetBrush(e) {
         //d3.brush().clear;
         //d3.select(this).call(brush.move,null);
+
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
+          d3.selectAll('.spatial-brush').lower();
+          console.log('hi')
+          // selection 을 0으로 만들면 될듯
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
-          //d3.selectAll('#spatial-brush').call(brush.clear);
+          //d3.selectAll('.spatial-brush').call(brush.clear);
         }
       }
 
@@ -362,6 +421,14 @@ function Atlas() {
 
     drawMap();
   }, [level]);
+
+  const svg = d3.select('#SummaryView');
+  svg
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .style("background-color", "red")
+    .attr("viewBox", `0 0 500 500`)
+    .classed("svg-content", true)
+    .selectAll('*').remove();
 
   return (
     <div>
