@@ -239,7 +239,7 @@ function Atlas() {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('mouseover',detailClicked);
+            .on('mouseover', detailClicked);
 
         });
 
@@ -252,29 +252,31 @@ function Atlas() {
         .attr('x', "0")
         .attr('y', "0")
         .attr("width", popUpConfig.length)
-        .attr("height", (popUpConfig.length/10)*11)
+        .attr("height", (popUpConfig.length / 10) * 11)
 
       detailsPopUP
         .append("rect")
         .attr('x', "0")
         .attr('y', "0")
         .attr("width", popUpConfig.length)
-        .attr("height", popUpConfig.length/10)
+        .attr("height", popUpConfig.length / 10)
         .attr('fill', '#ffffff')
 
       detailsPopUP.append('text')
         .text('제주 서귀포시 안덕면 병악로 166          👍563')
         .attr('x', popUpConfig.length / 2)
-        .attr('y', popUpConfig.length/20)
+        .attr('y', popUpConfig.length / 20)
         .attr('text-anchor', 'middle')
         .attr('alignment-baseline', "central")
         .attr('fill', 'black')
         .attr('font-size', popUpConfig.fontSize)
 
       detailsPopUP
+        .append('a')
+        .attr('xlink:href', 'https://www.instagram.com/')
         .append("svg:image")
         .attr('x', "0")
-        .attr('y', popUpConfig.length/10)
+        .attr('y', popUpConfig.length / 10)
         .attr("width", popUpConfig.length)
         .attr("height", popUpConfig.length)
         .attr('xlink:href', 'http://jetprogramme.org/wp-content/uploads/2017/03/Square-Instagram-Logo.png')
@@ -348,13 +350,24 @@ function Atlas() {
           .style("visibility", "hidden")
       }
 
-      function detailClicked(){
-         let rect = d3.select(this);
-         console.log(rect.attr('x'),rect.attr('y'))
+      function detailClicked() {
+        let rect = d3.select(this);
+        console.log(rect.attr('x'), rect.attr('y'))
         let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
         let y = Number(rect.attr('y'));
-         return detailsPopUP.attr("transform", "translate("+x+","+y+")")
-            .style("visibility", "visible")
+        // 사진, 주소, 좋아요, url 수정
+        detailsPopUP
+          .select('text') 
+          .text('서귀포, 대한민국 👍563') // 주소 + 좋아요 로 수정
+        detailsPopUP
+          .select('a')
+          .attr('xlink:href', 'https://www.instagram.com/p/CISn7CPn02Z/')
+          .select('image')
+          .attr('xlink:href','https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
+
+        // 해당 사각형 선택된 표시로 바꾸기
+        return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
+          .style("visibility", "visible")
 
       }
 
