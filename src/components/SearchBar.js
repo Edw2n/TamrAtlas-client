@@ -1,35 +1,41 @@
 import React, { useState } from 'react';
+import * as axios from 'axios';
 import './SearchBar.css';
 
 function SearchBar(props) {
     const [value, setValue] = useState('')
-    // const [negItems, setNegItems] = useState([])
     const [error, setError] = useState(null)
-    // const [items, setItems] = useState([])
+    const [items, setItems] = useState([])
+    const [negItems, setNegItems] = useState([])
 
-    // useEffect (() => {
-    //     console.log(props);
-    // })
+    async function fetchData(include, exclude) {
+      const { data } = await axios.get('http://147.46.242.161:10000/search', {
+        crossdomain: true,
+        params: { include, exclude }
+      });
+      props.setInstaData(data);
+    }
 
     const handleKeyDown = (event) => {
-        console.log(value)
-        if(['Enter', 'Tab', ',', ';'].includes(event.key)){
-            event.preventDefault()
+      console.log(value)
+      if(['Enter', 'Tab', ',', ';'].includes(event.key)){
+        event.preventDefault()
 
-            let val = value.trim()
+        let val = value.trim()
 
-            if(val && isValid(val)) {
-                if (val.charAt(0) == '-'){
-                    val = val.slice(1, val.length).trim()
-                    props.setNegItems([...props.negItems, val])
-                }
-                else {
-                    props.setItems([...props.items, val])
-                }
-                setValue("")
-            }
-            
+        if(val && isValid(val)) {
+          if (val.charAt(0) == '-'){
+            val = val.slice(1, val.length).trim()
+            fetchData(items, [...negItems, val]);
+            setNegItems([...negItems, val]);
+          }
+          else {
+            fetchData(items, [...negItems, val]);
+            setItems([...items, val]);
+          }
+          setValue("");
         }
+      }
     }
 
     const handleChange = (event) => {
@@ -38,11 +44,15 @@ function SearchBar(props) {
     }
 
     const handleDelete = (item) => {
-        props.setItems(props.items.filter(i => i !== item))
+      const newItems = items.filter(i => i !== item);
+      fetchData(newItems, negItems);
+      setItems(newItems);
     }
 
     const handleNegDelete = (item) => {
-        props.setNegItems(props.negItems.filter(i => i !== item))
+      const newNegItems = negItems.filter(i => i !== item);
+      fetchData(items, newNegItems);
+      setNegItems(newNegItems);
     }
 
     const handlePaste = (event) => {
@@ -50,21 +60,25 @@ function SearchBar(props) {
 
         let paste = event.clipboardData.getData('text')
         if (paste.charAt(0) == '-'){
-            props.setNegItems([...props.negItems, paste])
+          const newNegItems = [...negItems, paste];
+          fetchData(items, newNegItems);
+          setNegItems(newNegItems);
         }
         else {
-            props.setItems([...props.items, ...paste])
+          const newItems = [...items, ...paste];
+          fetchData(newItems, negItems);
+          setItems(newItems);
         }
     }
 
     const isValid = (item) => {
         let err = null
 
-        if (props.items.includes(item)) {
+        if (items.includes(item)) {
             err = `${item} has already been added.`;
         }
 
-        if (props.negItems.includes(item)) {
+        if (negItems.includes(item)) {
             err = `${item} has already been added.`;
         }
 
@@ -79,7 +93,7 @@ function SearchBar(props) {
 
     return(
         <div>
-            {props.items.map(item => (
+            {items.map(item => (
                 <div className="tag-item" key={item}>
             {item}
                 <button
@@ -92,7 +106,7 @@ function SearchBar(props) {
             </div>
             ))}
 
-            {props.negItems.map(negItem => (
+            {negItems.map(negItem => (
                 <div className="tag-item-neg" key={negItem}>
                 {negItem}
                 <button

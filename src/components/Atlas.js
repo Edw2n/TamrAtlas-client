@@ -119,7 +119,9 @@ function mountain(layers, photos, coord, gridData) {
 }
 
 
-function Atlas() {
+function Atlas(props) {
+  console.log(props.instaData);
+
   let w = 2000;
   let h = 1100;
 
