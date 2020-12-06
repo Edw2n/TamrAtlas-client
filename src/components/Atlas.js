@@ -239,7 +239,7 @@ function Atlas() {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('mouseover', detailClicked);
+            .on('click', detailClicked);
 
         });
 
