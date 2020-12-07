@@ -57,7 +57,7 @@ function haversineDistance(coord1, coord2) {
   return distance;
 }
 
-function mountain(layers, photos, coord, gridData) {
+function mountain(layers, coord, gridData) {
   function generateMountain(layers) {
     const grid = 20;
     const data = [];
@@ -216,22 +216,10 @@ function Atlas(props) {
         .classed("svg-content", true)
         .selectAll('*').remove();
 
-      // load data
+      // Load map grid data
       const gridData = gridInfo[level].gridData;
 
-      // draw map
-      svg.append("defs")
-        .append("pattern")
-        .attr("id", `${level}`)
-        .attr("width", "100%")
-        .attr('height', "100%")
-        .attr("patternContentUnits", "objectBoundingBox")
-        .append("image")
-        .attr("height", "1") // value is ratio : "image height /pattern height"
-        .attr("width", "1") // value is ratio : "image width /pattern width"
-        .attr("xlink:href", // use square size image
-          gridInfo[level].fill);
-
+      // Draw map as grids
       const atlas = svg.append('g');
       const map = atlas.append('g');
       map
@@ -246,13 +234,73 @@ function Atlas(props) {
         .attr('height', gridInfo[level].size / 3)
         .attr('fill', 'orange');
 
+      // Generate mountain data
+      let mountainData = [];
+      let mountainPhotos = [];
+      function thumbnailUrl(idx) {
+        const index = idx.toString().padStart(6, '0');
+        return 'http://147.46.242.161:10000/thumbnail/' + index;
+      }
+      if (props.instaData.clusters) {
+        mountainData = props.instaData.clusters.map((c) => {
+          const layers = Math.floor(2 + c.photos.length / 100);
+          const m = mountain(layers, c.center, gridData);
+          const photos = c.photos.slice(0, m.grids.length);
+          m.grids = m.grids.map((g, i) => ({
+            ...g,
+            id: 'insta_' + photos[i].idx
+          }));
+          mountainPhotos = [ ...mountainPhotos, ...photos.map((p, i) => ({
+            id: 'insta_' + p.idx,
+            url: i === 0 ? p.img_url : thumbnailUrl(p.idx)
+          }))];
+          return m;
+        });
+      }
 
-      const mountainData = [
-        mountain(3, [], {lon: 126.25, lat: 33.5}, gridData),
-        mountain(8, [], {lon: 126.55, lat: 33.4}, gridData),
-        mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
-      ];
-      console.log(mountainData);
+      // Add photos as patterns
+      svg.append("defs")
+        .selectAll('pattern')
+        .data(mountainPhotos)
+        .enter()
+        .append("pattern")
+        .attr("id", (d) => d.id)
+        .attr("width", "100%")
+        .attr('height', "100%")
+        .attr("patternContentUnits", "objectBoundingBox")
+        .append("image")
+        .attr("height", "1") // value is ratio : "image height /pattern height"
+        .attr("width", "1") // value is ratio : "image width /pattern width"
+        .attr("href", (d) => d.url);
+
+      // Draw mountains
+      const mountains = atlas.append('g')
+
+      mountains
+        .selectAll('g')
+        .data(mountainData)
+        .enter()
+        .append('g')
+        .attr('id', (d, i) => `mountain${i + 1}`)
+        .each(function (p, i) {
+          d3.select(this)
+            .selectAll('rect')
+            .data((d) => d.grids)
+            .enter()
+            .append('rect')
+            .classed("oreum-grid", true)
+            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300)
+            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150)
+            .attr('width', (d) => d.size * gridInfo[level].size)
+            .attr('height', (d) => d.size * gridInfo[level].size)
+            //.attr('fill', () => {
+            //  let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
+            //  return color;
+            //})
+            .attr('fill', (d) => `url(#${d.id})`)
+            .on('click', (e, d) => detailClicked(e, d));
+
+        });
 
       const top3Data = [ // need to initialize when searched
         {
@@ -275,33 +323,6 @@ function Atlas(props) {
           clusterNumber: 1
         }
       ];
-
-      const mountains = atlas.append('g')
-
-      mountains
-        .selectAll('g')
-        .data(mountainData)
-        .enter()
-        .append('g')
-        .attr('id', (d, i) => `mountain${i + 1}`)
-        .each(function (p, i) {
-          d3.select(this)
-            .selectAll('rect')
-            .data((d) => d.grids)
-            .enter()
-            .append('rect')
-            .classed("oreum-grid", true)
-            .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300)
-            .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150)
-            .attr('width', (d) => d.size * gridInfo[level].size)
-            .attr('height', (d) => d.size * gridInfo[level].size)
-            .attr('fill', () => {
-              let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
-              return color;
-            })
-            .on('click', (e, d) => detailClicked(e, d));
-
-        });
 
       d3.selectAll('.tooltip').remove()
 
