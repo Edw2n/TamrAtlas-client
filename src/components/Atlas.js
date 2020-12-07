@@ -1,6 +1,18 @@
 import React, {useState} from 'react';
 import * as d3 from 'd3';
+import {select} from 'd3-transition';
 import './Atlas.css';
+
+let tooltipConfigVanila = {
+  width: 50,
+  height: 30,
+  fontSize: 25
+}
+
+let popUpConfigVanila = {
+  length: 200,
+  fontSize: 10
+}
 
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
@@ -125,14 +137,11 @@ function Atlas(props) {
   let w = 2000;
   let h = 1100;
 
+  let tooltipConfig = {}
+  let popUpConfig = {}
+
   let gridInfo;
   const [level, setGrids] = useState(['vanila']);
-
-  let tooltipConfig = {
-    width : 50,
-    height : 30,
-    fontSize : 25
-  }
 
   React.useEffect(() => {
     async function drawMap() {
@@ -168,6 +177,16 @@ function Atlas(props) {
           )
         };
       }
+
+      for (let key in tooltipConfigVanila) {
+        tooltipConfig[key] = tooltipConfigVanila[key] / gridInfo[level].start;
+      }
+
+      for (let key in popUpConfigVanila) {
+        popUpConfig[key] = popUpConfigVanila[key] / gridInfo[level].start;
+      }
+
+
       const svg = d3.select('#mapCanvas');
       svg
         .attr("preserveAspectRatio", "xMinYMin meet")
@@ -213,12 +232,36 @@ function Atlas(props) {
         mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
       ];
 
-      const mountains = atlas.append('g');
+      const top3Data = [ // need to initialize when searched
+        {
+          rank: 1,
+          region: '애월읍',
+          value: 309,
+          clusterNumber: 2
+        },
+        {
+          rank: 2,
+          region: '서산면',
+          value: 61,
+          clusterNumber: 3
+        }
+        ,
+        {
+          rank: 3,
+          region: '중문읍',
+          value: 17,
+          clusterNumber: 1
+        }
+      ];
+
+      const mountains = atlas.append('g')
+
       mountains
         .selectAll('g')
         .data(mountainData)
         .enter()
         .append('g')
+        .attr('id', (d, i) => `mountain${i + 1}`)
         .each(function (p, i) {
           d3.select(this)
             .selectAll('rect')
@@ -233,10 +276,49 @@ function Atlas(props) {
             .attr('fill', () => {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
-            });
+            })
+            .on('click', detailClicked);
+
         });
 
       d3.selectAll('.tooltip').remove()
+
+      const detailsPopUP = mountains
+        .append('g')
+        .attr('class', 'popup')
+        .style("visibility", "hidden")
+        .attr('x', "0")
+        .attr('y', "0")
+        .attr("width", popUpConfig.length)
+        .attr("height", (popUpConfig.length / 10) * 11)
+
+      detailsPopUP
+        .append("rect")
+        .attr('x', "0")
+        .attr('y', "0")
+        .attr("width", popUpConfig.length)
+        .attr("height", popUpConfig.length / 10)
+        .attr('fill', '#ffffff')
+
+      detailsPopUP.append('text')
+        .text('제주 서귀포시 안덕면 병악로 166          👍563')
+        .attr('x', popUpConfig.length / 2)
+        .attr('y', popUpConfig.length / 20)
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', "central")
+        .attr('fill', 'black')
+        .attr('font-size', popUpConfig.fontSize)
+
+      detailsPopUP
+        .append('a')
+        .attr('xlink:href', 'https://www.instagram.com/')
+        .append("svg:image")
+        .attr('x', "0")
+        .attr('y', popUpConfig.length / 10)
+        .attr("width", popUpConfig.length)
+        .attr("height", popUpConfig.length)
+        .attr('xlink:href', 'http://jetprogramme.org/wp-content/uploads/2017/03/Square-Instagram-Logo.png')
+
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
@@ -252,7 +334,9 @@ function Atlas(props) {
       }
 
       function brushStart() {
+        tooltip.style("visibility", "hidden");
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
+          d3.selectAll('.spatial-brush').raise();
           mountains
             .selectAll('.oreum-grid')
             .attr("stroke", "none")
@@ -297,11 +381,31 @@ function Atlas(props) {
         if (mountains.selectAll('.selected').size() > 0) {
           tooltip.selectAll('text').text(counts)
           return tooltip
-            .attr("transform","translate("+selection_box.attr("x")+","+(+selection_box.attr("y")-tooltipConfig.height)+")")
+            .attr("transform", "translate(" + selection_box.attr("x") + "," + (+selection_box.attr("y") - tooltipConfig.height) + ")")
             .style("visibility", "visible")
         }
         return tooltip
           .style("visibility", "hidden")
+      }
+
+      function detailClicked() {
+        let rect = d3.select(this);
+
+        let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
+        let y = Number(rect.attr('y'));
+        // 사진, 주소, 좋아요, url 수정
+        detailsPopUP
+          .select('text')
+          .text('서귀포, 대한민국 👍563') // 주소 + 좋아요 로 수정
+        detailsPopUP
+          .select('a')
+          .attr('xlink:href', 'https://www.instagram.com/p/CISn7CPn02Z/')
+          .select('image')
+          .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
+
+        // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
+        return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
+          .style("visibility", "visible")
       }
 
       svg.call(
@@ -330,21 +434,20 @@ function Atlas(props) {
 
       tooltip
         .append("rect")
-        .attr('x',"0")
-        .attr('y',"0")
+        .attr('x', "0")
+        .attr('y', "0")
         .attr("width", tooltipConfig.width)
-        .attr("height",tooltipConfig.height)
+        .attr("height", tooltipConfig.height)
         .attr('fill', 'lightgray')
 
       tooltip.append('text')
         .text('hi')
-        .attr('x',tooltipConfig.width/2)
-        .attr('y',tooltipConfig.height/2)
-        .attr('text-anchor','middle')
-        .attr('alignment-baseline',"central")
+        .attr('x', tooltipConfig.width / 2)
+        .attr('y', tooltipConfig.height / 2)
+        .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', "central")
         .attr('fill', 'black')
-        .attr('font-size',tooltipConfig.fontSize)
-
+        .attr('font-size', tooltipConfig.fontSize)
 
 
       //.on('click',e=>resetBrush(e))
@@ -352,18 +455,144 @@ function Atlas(props) {
       function resetBrush(e) {
         //d3.brush().clear;
         //d3.select(this).call(brush.move,null);
+
+        if (e.srcElement.classList[0] !== "oreum-grid") {
+          detailsPopUP.style('visibility', 'hidden');
+        }
+
         if (!(e.ctrlKey || e.metaKey || e.altKey || e.shiftKey)) {
+          d3.selectAll('.spatial-brush').lower();
+
+          // selection 을 0으로 만들면 될듯
           //selection = e.selection
           //d3.selectAll('#spatial-brush').call(brush.move, null);
-          //d3.selectAll('#spatial-brush').call(brush.clear);
+          //d3.selectAll('.spatial-brush').call(brush.clear);
         }
+
       }
 
       svg.on('click', resetBrush)
+
+      const top3BarChart = svg
+        .append('g')
+        .attr('id', 'top3')
+        .attr('transform', 'translate(0,0)')
+
+      const bars = top3BarChart
+        .selectAll('g')
+        .data(top3Data)
+        .join('g')
+        .attr('transform', d => `translate(0,${10 + (d.rank - 1) * 50})`)
+        .on('mouseover', highlightMountain)
+        .on('mouseout', dehighlightMountain)
+        .on('click', brushMountain)
+
+      bars
+        .append('rect')
+        .classed('top3-bar', true)
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', d => d.value)
+        .attr('height', 30)
+
+      bars
+        .append('text')
+        .classed('top3-text', true)
+        .text(d => d.region)
+        .attr('x', d => d.value + 5)
+        .attr('y', 15)
+        .attr('fill', '#000000')
+        .attr('font-size', 25)
+        .attr('alignment-baseline', "central")
+
+      function highlightMountain() {
+        let hoveredGroup = d3.select(this)
+        let clusterNum = hoveredGroup.data()[0].clusterNumber;
+
+        let top3 = top3BarChart
+          .selectAll('g')
+
+        top3.selectAll('.top3-bar,.top3-text')
+          .classed('unhovered', true);
+
+        hoveredGroup
+          .transition()
+          .delay(1000)
+          .call(function () {
+            hoveredGroup
+              .selectAll('.top3-bar,.top3-text')
+              .classed('unhovered', false)
+              .classed('hovered', true);
+
+            // Mountain 하이라이트
+            mountains
+              .select(`#mountain${clusterNum}`)
+              .selectAll('.oreum-grid')
+              .classed('highlighted',true)
+          })
+
+
+      }
+
+      function dehighlightMountain() {
+        let hoveredGroup = d3.select(this)
+        let clusterNum = hoveredGroup.data()[0].clusterNumber;
+
+        let top3 = top3BarChart
+          .selectAll('g')
+
+        top3.selectAll('.top3-bar,.top3-text')
+          .classed('unhovered', false);
+
+        hoveredGroup
+          .selectAll('.top3-bar,.top3-text')
+          .classed('hovered', false)
+          .transition()
+          .delay(1000)
+          .call(function(){ // Mountain de하이라이트
+            mountains
+              .select(`#mountain${clusterNum}`)
+              .selectAll('.oreum-grid')
+              .classed('highlighted',false)
+          })
+
+      }
+
+      function brushMountain() {
+        let selectedGroup = d3.select(this)
+        let left = top3BarChart.selectAll('g').filter(d => d.rank !== selectedGroup.data()[0].rank)
+        selectedGroup.classed('selected', !selectedGroup.classed('selected'))
+
+        selectedGroup
+          .transition()
+          .delay(1000)
+          .call(function () {
+            if (selectedGroup.classed('selected')) {
+              left
+                .classed('selected',false)
+                .selectAll('.top3-bar,.top3-text')
+                .classed('selected', false)
+            }
+
+            selectedGroup
+              .selectAll('.top3-bar,.top3-text')
+              .classed('selected', selectedGroup.classed('selected'))
+          })
+
+      }
+
     }
 
     drawMap();
   }, [level]);
+
+  const svg = d3.select('#SummaryView');
+  svg
+    .attr("preserveAspectRatio", "xMinYMin meet")
+    .style("background-color", "red")
+    .attr("viewBox", `0 0 500 500`)
+    .classed("svg-content", true)
+    .selectAll('*').remove();
 
   return (
     <div>

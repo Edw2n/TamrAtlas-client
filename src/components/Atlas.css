@@ -4,3 +4,43 @@
     stroke-width: 0.5;
 }
 
+.detail-target{
+    -webkit-filter: brightness(0.30);
+    filter: brightness(0.30);
+}
+
+.top3-bar {
+    fill: #248caa;
+    stroke: #248caa;
+    stroke-width: 0.1;
+}
+
+.top3-text {
+    fill: black;
+    font-size: 25px;
+}
+
+.unhovered {
+    opacity: 0.3;
+}
+
+.hovered,.selected{
+
+    opacity: 1;
+    stroke-width: 7;
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.selected .top3-bar {
+    fill: #12677b;
+    stroke: #12677b;
+}
+
+.highlighted {
+    stroke: red;
+    stroke-width:2px;
+}
+
+
+
