@@ -275,7 +275,7 @@ function Atlas() {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('click', e => detailClicked(e));
+            .on('click', (e,d) => detailClicked(e,d));
 
         });
 
@@ -386,13 +386,12 @@ function Atlas() {
           .style("visibility", "hidden")
       }
 
-      function detailClicked(e) {
-        // let rect = d3.select(this);
-        //
-        // let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
-        // let y = Number(rect.attr('y'));
-
-        console.log(d3.pointer(e));
+      function detailClicked(e,data) {
+        let rect = e.currentTarget;
+        // rect 변화 주기
+        
+        // data 가져오기
+        console.log(data)
 
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
