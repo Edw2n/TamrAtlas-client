@@ -6,8 +6,7 @@ import BrushableBar from './components/BrushableBar'
 import './App.css';
 
 function App() {
-  const [items, setItems] = useState([])
-  const [negItems, setNegItems] = useState([])
+  const [instaData, setInstaData] = useState([])
   const [barData, setBarData] = useState([])
   const [barDataReady, setBarDataReady] = useState(false)
   
@@ -34,8 +33,8 @@ function App() {
   return (
     <div className="App">
       {barDataReady ? <BrushableBar data={barData}/> : null}
-      <SearchBar items={items} setItems={setItems} negItems={negItems} setNegItems={setNegItems}/>
-      <Atlas />
+      <SearchBar setInstaData={setInstaData} />
+      <Atlas instaData={instaData}/>
     </div>
   );
 }
