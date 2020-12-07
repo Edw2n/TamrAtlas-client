@@ -4,7 +4,7 @@
     stroke-width: 0.5;
 }
 
-.detail-target{
+.detail-target {
     -webkit-filter: brightness(0.30);
     filter: brightness(0.30);
 }
@@ -24,7 +24,7 @@
     opacity: 0.3;
 }
 
-.hovered,.selected{
+.hovered, .selected {
 
     opacity: 1;
     stroke-width: 7;
@@ -41,9 +41,17 @@
     stroke-width: 0;
 }
 
-.highlighted, .brushed{
+.highlighted, .brushed {
     stroke: red;
-    stroke-width:0.75;
+    stroke-width: 0.75;
+}
+
+.word-cloud {
+    font-family: 'Nanum Gothic', sans-serif;
+}
+
+.word-selected {
+    fill: red;
 }
 
 
