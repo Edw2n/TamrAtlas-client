@@ -136,7 +136,8 @@ function mountain(layers, photos, coord, gridData) {
 
 
 function Atlas(props) {
-  console.log(props.instaData);
+  let data = props.instaData;
+  console.log(data);
 
   let w = 2000;
   let h = 1100;
@@ -481,7 +482,7 @@ function Atlas(props) {
       const top3BarChart = svg
         .append('g')
         .attr('id', 'top3')
-        .attr('transform', 'translate(0,0)')
+        .attr('transform', 'translate(10,0)')
 
       const bars = top3BarChart
         .selectAll('g')
