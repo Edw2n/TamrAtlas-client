@@ -14,6 +14,10 @@ let popUpConfigVanila = {
   fontSize: 10
 }
 
+let rightConfig = {
+  w:380,
+  h:280
+}
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
   let info = {
@@ -277,7 +281,7 @@ function Atlas(props) {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('click', detailClicked);
+            .on('click', (e, d) => detailClicked(e, d));
 
         });
 
@@ -335,16 +339,16 @@ function Atlas(props) {
 
       function brushStart() {
         tooltip.style("visibility", "hidden");
+
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
           mountains
             .selectAll('.oreum-grid')
-            .attr("stroke", "none")
-            .classed("selected", false);
+            .classed("brushed", false);
         }
       }
 
-      function isSelected(rect, selection) {
+      function isBrushed(rect, selection) {
         let width = +rect.attr("width");
         let height = +rect.attr("height");
         let mid_x = width / 2 + Number(rect.attr("x"));
@@ -356,11 +360,11 @@ function Atlas(props) {
           mid_y <= selection[1][1] + height / 2
         ) {
           //TODO: change each data with spatial-selected class
-          rect.classed("selected", true);
+          rect.classed("brushed", true);
           return true;
         }
         //TODO: change each data with spatial-non-selected class
-        rect.classed("selected", false);
+        rect.classed("brushed", false);
         return false;
       }
 
@@ -369,16 +373,16 @@ function Atlas(props) {
 
         mountains.selectAll('.oreum-grid').each(function (d, i) {
           let rect = d3.select(this);
-          rect.attr("stroke", isSelected(rect, selection) ? 'red' : 'none').attr('stroke-width', 1)
+          rect.attr("stroke", isBrushed(rect, selection) ? 'red' : 'none')
         });
       }
 
       function brushEnd(e) {
         let counts = 0;
-        counts = mountains.selectAll('.selected').size()
+        counts = mountains.selectAll('.brushed').size()
         let selection_box = d3.selectAll('.spatial-brush > .selection')
 
-        if (mountains.selectAll('.selected').size() > 0) {
+        if (mountains.selectAll('.brushed').size() > 0) {
           tooltip.selectAll('text').text(counts)
           return tooltip
             .attr("transform", "translate(" + selection_box.attr("x") + "," + (+selection_box.attr("y") - tooltipConfig.height) + ")")
@@ -388,11 +392,13 @@ function Atlas(props) {
           .style("visibility", "hidden")
       }
 
-      function detailClicked() {
-        let rect = d3.select(this);
+      function detailClicked(e, data) {
+        let rect = e.currentTarget;
+        // rect 변화 주기 // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
 
-        let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
-        let y = Number(rect.attr('y'));
+        // data 가져오기
+        console.log(data)
+
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
           .select('text')
@@ -403,8 +409,7 @@ function Atlas(props) {
           .select('image')
           .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
 
-        // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
-        return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
+        return detailsPopUP.attr("transform", "translate(" + d3.pointer(e)[0] + "," + d3.pointer(e)[1] + ")")
           .style("visibility", "visible")
       }
 
@@ -528,7 +533,7 @@ function Atlas(props) {
             mountains
               .select(`#mountain${clusterNum}`)
               .selectAll('.oreum-grid')
-              .classed('highlighted',true)
+              .classed('highlighted', true)
           })
 
 
@@ -549,11 +554,11 @@ function Atlas(props) {
           .classed('hovered', false)
           .transition()
           .delay(1000)
-          .call(function(){ // Mountain de하이라이트
+          .call(function () { // Mountain de하이라이트
             mountains
               .select(`#mountain${clusterNum}`)
               .selectAll('.oreum-grid')
-              .classed('highlighted',false)
+              .classed('highlighted', false)
           })
 
       }
@@ -569,7 +574,7 @@ function Atlas(props) {
           .call(function () {
             if (selectedGroup.classed('selected')) {
               left
-                .classed('selected',false)
+                .classed('selected', false)
                 .selectAll('.top3-bar,.top3-text')
                 .classed('selected', false)
             }
@@ -580,6 +585,26 @@ function Atlas(props) {
           })
 
       }
+
+      const wordCloud = svg
+        .append('g')
+        .attr('id', 'wordCloud')
+        .attr('transform', `translate(${w - rightConfig.w},0)`)
+
+      wordCloud
+        .append('rect')
+        .attr('width', rightConfig.w)
+        .attr('height', rightConfig.h)
+
+      const minimap = svg
+        .append('g')
+        .attr('id', 'minimap')
+        .attr('transform', `translate(${w - rightConfig.w},${h-rightConfig.h})`)
+
+      minimap
+        .append('rect')
+        .attr('width', rightConfig.w)
+        .attr('height', rightConfig.h)
 
     }
 
