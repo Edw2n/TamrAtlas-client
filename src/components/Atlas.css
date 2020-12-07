@@ -42,5 +42,15 @@
     stroke-width:2px;
 }
 
+.oreum-grid { /*아래 브러시드랑 순서 바뀌면 안됨*/
+    stroke-width: 0;
+}
+
+.brushed {
+    stroke: red;
+    stroke-width: 1;
+}
+
+
 
 

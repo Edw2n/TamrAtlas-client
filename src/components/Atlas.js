@@ -333,16 +333,16 @@ function Atlas() {
 
       function brushStart() {
         tooltip.style("visibility", "hidden");
+
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
           mountains
             .selectAll('.oreum-grid')
-            .attr("stroke", "none")
-            .classed("selected", false);
+            .classed("brushed", false);
         }
       }
 
-      function isSelected(rect, selection) {
+      function isBrushed(rect, selection) {
         let width = +rect.attr("width");
         let height = +rect.attr("height");
         let mid_x = width / 2 + Number(rect.attr("x"));
@@ -354,11 +354,11 @@ function Atlas() {
           mid_y <= selection[1][1] + height / 2
         ) {
           //TODO: change each data with spatial-selected class
-          rect.classed("selected", true);
+          rect.classed("brushed", true);
           return true;
         }
         //TODO: change each data with spatial-non-selected class
-        rect.classed("selected", false);
+        rect.classed("brushed", false);
         return false;
       }
 
@@ -367,16 +367,16 @@ function Atlas() {
 
         mountains.selectAll('.oreum-grid').each(function (d, i) {
           let rect = d3.select(this);
-          rect.attr("stroke", isSelected(rect, selection) ? 'red' : 'none').attr('stroke-width', 1)
+          rect.attr("stroke", isBrushed(rect, selection) ? 'red' : 'none')
         });
       }
 
       function brushEnd(e) {
         let counts = 0;
-        counts = mountains.selectAll('.selected').size()
+        counts = mountains.selectAll('.brushed').size()
         let selection_box = d3.selectAll('.spatial-brush > .selection')
 
-        if (mountains.selectAll('.selected').size() > 0) {
+        if (mountains.selectAll('.brushed').size() > 0) {
           tooltip.selectAll('text').text(counts)
           return tooltip
             .attr("transform", "translate(" + selection_box.attr("x") + "," + (+selection_box.attr("y") - tooltipConfig.height) + ")")
