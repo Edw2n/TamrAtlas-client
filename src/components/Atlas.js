@@ -133,7 +133,19 @@ function mountain(layers, photos, coord, gridData) {
     return gridData.matrix[row][col]; // filter out if undefined
   });
 
-  return {centerPos, grids};
+  // Calculate the bounding box
+  const xs = grids.map((g) => g.x);
+  const ys = grids.map((g) => g.y);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const maxX = Math.max(...xs);
+  const maxY = Math.max(...ys);
+  const bbox = [
+    [minX - 0.5 + centerPos[0], minY - 0.5 + centerPos[1]],
+    [maxX + 0.5 + centerPos[0], maxY + 0.5 + centerPos[1]]
+  ];
+
+  return {centerPos, bbox, grids};
 }
 
 
@@ -240,6 +252,7 @@ function Atlas(props) {
         mountain(8, [], {lon: 126.55, lat: 33.4}, gridData),
         mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
       ];
+      console.log(mountainData);
 
       const top3Data = [ // need to initialize when searched
         {
