@@ -150,7 +150,8 @@ function mountain(layers, coord, gridData) {
 
 
 function Atlas(props) {
-  //let data = props.instaData;
+  let data = props.instaData;
+  console.log(data);
 
   let w = 2000;
   let h = 1100;
@@ -668,7 +669,7 @@ function Atlas(props) {
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
       let wordSeed
-      let bannedWords = ['제주도','제주','jeju','광고']
+      let bannedWords = ['제주도','제주','jeju','광고','jejudo','JEJU'];
       console.log(hashtags)
       if (hashtags) {
         wordSeed = Object.keys(hashtags).filter(d=> !bannedWords.includes(d) ).map(d => ({
@@ -732,8 +733,10 @@ function Atlas(props) {
         .attr('id', 'minimap')
         .attr('transform', `translate(${w - rightConfig.w},${h - rightConfig.h})`)
 
+
       minimap
-        .append('rect')
+        .append('image')
+        .attr('xlink:href',process.env.PUBLIC_URL +'minimap-background.png')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
 
