@@ -246,13 +246,20 @@ function Atlas(props) {
         .attr('height', gridInfo[level].size / 3)
         .attr('fill', 'orange');
 
-
+      let mountainData = []
+      if (props.instaData.clusters) {
+        mountainData = props.instaData.clusters.map((c) => {
+          const layers = Math.floor(2 + c.photos.length / 100);
+          return mountain(layers, [], c.center, gridData);
+        });
+      }
+      /*
       const mountainData = [
         mountain(3, [], {lon: 126.25, lat: 33.5}, gridData),
         mountain(8, [], {lon: 126.55, lat: 33.4}, gridData),
         mountain(4, [], {lon: 126.75, lat: 33.35}, gridData),
       ];
-      console.log(mountainData);
+      */
 
       const top3Data = [ // need to initialize when searched
         {
