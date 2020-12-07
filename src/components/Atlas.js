@@ -513,7 +513,7 @@ function Atlas(props) {
       function highlightMountain() {
         let hoveredGroup = d3.select(this)
         let clusterNum = hoveredGroup.data()[0].clusterNumber;
-
+        
         let top3 = top3BarChart
           .selectAll('g')
 
