@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import * as d3 from 'd3';
 import {select} from 'd3-transition';
 import './Atlas.css';
+import cloud from 'd3-cloud';
 
 let tooltipConfigVanila = {
   width: 50,
@@ -15,9 +16,10 @@ let popUpConfigVanila = {
 }
 
 let rightConfig = {
-  w:380,
-  h:280
+  w: 380,
+  h: 280
 }
+
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
   let info = {
@@ -136,8 +138,7 @@ function mountain(layers, photos, coord, gridData) {
 
 
 function Atlas(props) {
-  let data = props.instaData;
-  console.log(data);
+  //let data = props.instaData;
 
   let w = 2000;
   let h = 1100;
@@ -150,6 +151,9 @@ function Atlas(props) {
 
   React.useEffect(() => {
     async function drawMap() {
+
+      let hashtags = props.instaData.hashtags;
+      console.log(hashtags);
 
       if (!gridInfo) {
         gridInfo = {
@@ -514,7 +518,7 @@ function Atlas(props) {
       function highlightMountain() {
         let hoveredGroup = d3.select(this)
         let clusterNum = hoveredGroup.data()[0].clusterNumber;
-        
+
         let top3 = top3BarChart
           .selectAll('g')
 
@@ -539,6 +543,34 @@ function Atlas(props) {
 
 
       }
+
+      function handleMouseOver() {
+        let text = d3.select(this);
+        text
+          .transition()
+          .duration(200)
+          .ease(d3.easeLinear)
+          .style('font-size', d => {
+            return (d.size + 3) + 'px'
+          })
+          .attr("font-weight", "bold")
+          .attr("fill", d => d3.rgb(color(Math.log(d.fill) / 3)).darker(2));
+      }
+
+      function handleMouseOut() {
+        let text = d3.select(this);
+        text
+          .style('font-size', d => {
+            return (d.size) + 'px'
+          })
+          .attr("fill", d => color(Math.log(d.fill) / 3));
+      }
+
+      function handleClick() {
+        let text = d3.select(this)
+        console.log(text.text());
+        text.classed('word-selected', !text.classed('word-selected'))
+      };
 
       function dehighlightMountain() {
         let hoveredGroup = d3.select(this)
@@ -589,18 +621,82 @@ function Atlas(props) {
 
       const wordCloud = svg
         .append('g')
+        .style('background-color', 'white')
         .attr('id', 'wordCloud')
-        .attr('transform', `translate(${w - rightConfig.w},0)`)
+        .attr('transform', `translate(${w - rightConfig.w},0)`);
 
       wordCloud
         .append('rect')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
+        .attr('fill', 'white');
+
+      let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
+
+      let wordSeed
+      let bannedWords = ['제주도','제주','jeju','광고']
+      console.log(hashtags)
+      if (hashtags) {
+        wordSeed = Object.keys(hashtags).filter(d=> !bannedWords.includes(d) ).map(d => ({
+          text: d,
+          size: hashtags[d],
+          fill: hashtags[d]
+
+        }))
+
+        console.log(wordSeed);
+
+        makecloud(wordSeed.filter(d=>d.size).sort((a, b) => b.size - a.size));
+      }
+
+      function makecloud(words) {
+        console.log(words.length);
+        let mycloud = d3.select('#wordCloud');
+
+        var layout = cloud()
+          .size([rightConfig.w, rightConfig.h])
+          .words(words)
+          .padding(3)
+          .rotate(d => ~~(Math.random() * 1) * 90)
+          .font("Nanum Gothic")
+          .fontSize(d => 20 * Math.log(d.size))
+          .on("end", draw);
+
+        layout.start();
+
+        function draw(words) {
+          mycloud
+            .attr("width", layout.size()[0])
+            .attr("height", layout.size()[1])
+            .append("g")
+            .attr(
+              "transform",
+              "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")"
+            )
+            .selectAll("text")
+            .data(words)
+            .enter()
+            .append("text")
+            .style("font-size", d => `${d.size}px`)
+            .style("font-family", "Nanum Gothic")
+            .attr("text-anchor", "middle")
+            .attr("transform", d => {
+              return `translate(${[d.x, d.y]})rotate(${d.rotate})`
+            })
+            .attr("fill", d => color(Math.log(d.fill) / 3))
+            .text(d => d.text)
+            .on("mouseover", handleMouseOver)
+            .on("mouseout", handleMouseOut)
+            .on("click", handleClick);
+        }
+
+        return mycloud;
+      }
 
       const minimap = svg
         .append('g')
         .attr('id', 'minimap')
-        .attr('transform', `translate(${w - rightConfig.w},${h-rightConfig.h})`)
+        .attr('transform', `translate(${w - rightConfig.w},${h - rightConfig.h})`)
 
       minimap
         .append('rect')
@@ -610,7 +706,7 @@ function Atlas(props) {
     }
 
     drawMap();
-  }, [level]);
+  }, [level, props.instaData]);
 
   const svg = d3.select('#SummaryView');
   svg
