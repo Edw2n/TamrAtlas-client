@@ -275,7 +275,7 @@ function Atlas() {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('click', detailClicked);
+            .on('click', e => detailClicked(e));
 
         });
 
@@ -386,11 +386,14 @@ function Atlas() {
           .style("visibility", "hidden")
       }
 
-      function detailClicked() {
-        let rect = d3.select(this);
+      function detailClicked(e) {
+        // let rect = d3.select(this);
+        //
+        // let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
+        // let y = Number(rect.attr('y'));
 
-        let x = Number(rect.attr('x')) + Number(rect.attr('width')) + 4;
-        let y = Number(rect.attr('y'));
+        console.log(d3.pointer(e));
+
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
           .select('text')
@@ -402,7 +405,7 @@ function Atlas() {
           .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
 
         // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
-        return detailsPopUP.attr("transform", "translate(" + x + "," + y + ")")
+        return detailsPopUP.attr("transform", "translate(" + d3.pointer(e)[0] + "," + d3.pointer(e)[1] + ")")
           .style("visibility", "visible")
       }
 
