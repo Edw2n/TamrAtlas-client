@@ -14,6 +14,10 @@ let popUpConfigVanila = {
   fontSize: 10
 }
 
+let rightConfig = {
+  w:380,
+  h:280
+}
 async function makeGridInfo(jsonUrl, imgUrl, start, end, next, prev, size) {
   const jsonData = d3.json(jsonUrl);
   let info = {
@@ -275,7 +279,7 @@ function Atlas() {
               let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               return color;
             })
-            .on('click', (e,d) => detailClicked(e,d));
+            .on('click', (e, d) => detailClicked(e, d));
 
         });
 
@@ -386,10 +390,10 @@ function Atlas() {
           .style("visibility", "hidden")
       }
 
-      function detailClicked(e,data) {
+      function detailClicked(e, data) {
         let rect = e.currentTarget;
-        // rect 변화 주기
-        
+        // rect 변화 주기 // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
+
         // data 가져오기
         console.log(data)
 
@@ -403,7 +407,6 @@ function Atlas() {
           .select('image')
           .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
 
-        // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
         return detailsPopUP.attr("transform", "translate(" + d3.pointer(e)[0] + "," + d3.pointer(e)[1] + ")")
           .style("visibility", "visible")
       }
@@ -528,7 +531,7 @@ function Atlas() {
             mountains
               .select(`#mountain${clusterNum}`)
               .selectAll('.oreum-grid')
-              .classed('highlighted',true)
+              .classed('highlighted', true)
           })
 
 
@@ -549,11 +552,11 @@ function Atlas() {
           .classed('hovered', false)
           .transition()
           .delay(1000)
-          .call(function(){ // Mountain de하이라이트
+          .call(function () { // Mountain de하이라이트
             mountains
               .select(`#mountain${clusterNum}`)
               .selectAll('.oreum-grid')
-              .classed('highlighted',false)
+              .classed('highlighted', false)
           })
 
       }
@@ -569,7 +572,7 @@ function Atlas() {
           .call(function () {
             if (selectedGroup.classed('selected')) {
               left
-                .classed('selected',false)
+                .classed('selected', false)
                 .selectAll('.top3-bar,.top3-text')
                 .classed('selected', false)
             }
@@ -580,6 +583,26 @@ function Atlas() {
           })
 
       }
+
+      const wordCloud = svg
+        .append('g')
+        .attr('id', 'wordCloud')
+        .attr('transform', `translate(${w - rightConfig.w},0)`)
+
+      wordCloud
+        .append('rect')
+        .attr('width', rightConfig.w)
+        .attr('height', rightConfig.h)
+
+      const minimap = svg
+        .append('g')
+        .attr('id', 'minimap')
+        .attr('transform', `translate(${w - rightConfig.w},${h-rightConfig.h})`)
+
+      minimap
+        .append('rect')
+        .attr('width', rightConfig.w)
+        .attr('height', rightConfig.h)
 
     }
 
