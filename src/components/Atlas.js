@@ -167,8 +167,8 @@ function Atlas(props) {
     async function drawMap() {
 
       let hashtags = props.instaData.hashtags;
-      console.log(hashtags);
       let presentTags = {};
+      let brushedRects;
 
       if (!gridInfo) {
         gridInfo = {
@@ -403,7 +403,6 @@ function Atlas(props) {
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
-        console.log(zoomState)
         if (zoomState.k > gridInfo[level].end) {
           setGrids(gridInfo[level].next);
           console.log('scale up');
@@ -416,11 +415,9 @@ function Atlas(props) {
 
         const factorX = minimap.select('image').attr('width') / w;
         const factorY = minimap.select('image').attr('height') / h;
-        console.log(factorX, factorY)
         let start = [-zoomState.x * (factorX / zoomState.k), -zoomState.y * (factorY / zoomState.k)]
         let bboxSize = [minimap.select('image').attr('width') / zoomState.k, minimap.select('image').attr('height') / zoomState.k]
         let end = [start[0] + bboxSize[0], start[1] + bboxSize[1]]
-        console.log(start, end)
         mBrush.move(minimapBrush, [start, end]);
 
       }
@@ -435,7 +432,7 @@ function Atlas(props) {
             .classed("brushed", false)
             .each(function (d, i) {
               let rect = d3.select(this);
-              presentTags.forEach(tags=>function(){
+              Object.keys(presentTags).forEach(tag => function () {
                 rect.classed(`brushed-tag-${tag}`, false);
               })
             });
@@ -480,7 +477,6 @@ function Atlas(props) {
         let selection_box = d3.selectAll('.spatial-brush > .selection')
 
         if (mountains.selectAll('.brushed').size() > 0) {
-          console.log('hire')
           reloadWordCloud(await getTags())
           tooltip.selectAll('text').text(counts);
           return tooltip
@@ -509,10 +505,10 @@ function Atlas(props) {
               freqs[tag] = 1
             }
           });
-          console.log(freqs)
         });
 
         presentTags = freqs;
+        brushedRects = mt;
         return freqs
       }
 
@@ -522,7 +518,6 @@ function Atlas(props) {
 
         // data 가져오기
         let detailData = data.data
-        console.log(detailData)
 
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
@@ -696,10 +691,26 @@ function Atlas(props) {
           .attr("fill", d => color(Math.log(d.fill) / 3));
       }
 
-      function handleClick() {
+      function handleClick() { //don't cover multiple
         let text = d3.select(this)
-        console.log(text.text());
-        text.classed('word-selected', !text.classed('word-selected'))
+
+        text
+          .classed('word-selected', !text.classed('word-selected'))
+          .transition()
+          .delay(400)
+          .call(function () {
+            mountains
+              .selectAll('.oreum-grid')
+              .classed('tag-dehighlight',text.classed('word-selected'))
+              .transition()
+              .delay(500)
+              .call(function () {
+                mountains
+                  .selectAll(`.brushed-tag-${text.text()}`)
+                  .classed('tag-dehighlight', !text.classed('word-selected'))
+              })
+
+          })
       };
 
       function dehighlightMountain() {
@@ -775,13 +786,11 @@ function Atlas(props) {
 
       let wordSeed
       let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
-      console.log(hashtags)
 
       reloadWordCloud(hashtags)
 
       function reloadWordCloud(hashtags) {
 
-        console.log(hashtags)
         if (hashtags) {
           wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
             text: d,
@@ -790,14 +799,11 @@ function Atlas(props) {
 
           }))
 
-          console.log(wordSeed);
-
           makecloud(wordSeed.filter(d => d.size).sort((a, b) => b.size - a.size));
         }
       }
 
       function makecloud(words) {
-        console.log(words.length);
         let mycloud = d3.select('#wordCloud');
 
         var layout = cloud()
@@ -889,7 +895,6 @@ function Atlas(props) {
         let brushTransform = d3.brushSelection(this)[0];
         let translate = [-brushTransform[0] * zoomState.k / factorX, -brushTransform[1] * zoomState.k / factorY]
 
-        console.log(atlas.attr('transform'));
         atlas.attr('transform', `translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
       }
 

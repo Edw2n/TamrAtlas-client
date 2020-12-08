@@ -42,7 +42,16 @@
 }
 
 .highlighted, .brushed {
-    stroke: red;
+    stroke: orangered;
+    stroke-width: 0.75;
+}
+
+.tag-dehighlight {
+    mix-blend-mode: luminosity
+}
+
+.tag-highlight {
+    stroke: blue;
     stroke-width: 0.75;
 }
 
@@ -51,7 +60,7 @@
 }
 
 .word-selected {
-    fill: red;
+    fill: orangered;
 }
 
 .opaque-background {
