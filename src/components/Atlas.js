@@ -251,10 +251,10 @@ function Atlas(props) {
           const photos = c.photos.slice(0, m.grids.length);
           m.grids = m.grids.map((g, i) => ({
             ...g,
-            id: 'insta_' + photos[i].idx
+            data: photos[i]
           }));
           mountainPhotos = [...mountainPhotos, ...photos.map((p, i) => ({
-            id: 'insta_' + p.idx,
+            id: 'photo_' + p.idx,
             url: i === 0 ? p.img_url : thumbnailUrl(p.idx)
           }))];
           return m;
@@ -301,7 +301,7 @@ function Atlas(props) {
             //  let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
             //  return color;
             //})
-            .attr('fill', (d) => `url(#${d.id})`)
+            .attr('fill', (d) => `url(#photo_${d.data.idx})`)
             .on('click', (e, d) => detailClicked(e, d));
 
         });
