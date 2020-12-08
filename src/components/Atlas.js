@@ -286,6 +286,7 @@ function Atlas(props) {
         .append('g')
         .attr('id', (d, i) => `mountain${i + 1}`)
         .each(function (p, i) {
+          console.log('data', d3.select(this).data())
           d3.select(this)
             .selectAll('rect')
             .data((d) => d.grids)
@@ -379,12 +380,12 @@ function Atlas(props) {
           atlas.attr("transform", transform);
         }
 
-      const factorX = minimap.select('image').attr('width')/w;
-      const factorY = minimap.select('image').attr('height')/h;
-      console.log(factorX,factorY)
-        let start = [-zoomState.x * (factorX/zoomState.k), -zoomState.y * (factorY/zoomState.k)]
-        let bboxSize = [minimap.select('image').attr('width')/zoomState.k,minimap.select('image').attr('height')/zoomState.k]
-        let end = [start[0]+bboxSize[0],start[1]+bboxSize[1]]
+        const factorX = minimap.select('image').attr('width') / w;
+        const factorY = minimap.select('image').attr('height') / h;
+        console.log(factorX, factorY)
+        let start = [-zoomState.x * (factorX / zoomState.k), -zoomState.y * (factorY / zoomState.k)]
+        let bboxSize = [minimap.select('image').attr('width') / zoomState.k, minimap.select('image').attr('height') / zoomState.k]
+        let end = [start[0] + bboxSize[0], start[1] + bboxSize[1]]
         console.log(start, end)
         mBrush.move(minimapBrush, [start, end]);
 
@@ -681,15 +682,14 @@ function Atlas(props) {
 
       const wordCloud = svg
         .append('g')
-        .style('background-color', 'white')
         .attr('id', 'wordCloud')
         .attr('transform', `translate(${w - rightConfig.w},0)`);
 
       wordCloud
         .append('rect')
+        .classed('opaque-background', true)
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
-        .attr('fill', 'white');
 
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
@@ -758,10 +758,15 @@ function Atlas(props) {
         .attr('id', 'minimap')
         .attr('transform', `translate(${w - rightConfig.w},${h - rightConfig.h})`)
 
+      minimap
+        .append('rect')
+        .classed('opaque-background', true)
+        .attr('width', rightConfig.w)
+        .attr('height', rightConfig.h)
 
       minimap
         .append('image')
-        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background.png')
+        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background-fontup.png')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
 
@@ -787,13 +792,13 @@ function Atlas(props) {
       function onPrevBrush() {
         //ctrl key 눌러졌을 때
         const zoomState = d3.zoomTransform(svg.node());
-        const factorX = minimap.select('image').attr('width')/w;
-        const factorY = minimap.select('image').attr('height')/h;
+        const factorX = minimap.select('image').attr('width') / w;
+        const factorY = minimap.select('image').attr('height') / h;
         let brushTransform = d3.brushSelection(this)[0];
-        let translate = [-brushTransform[0]*zoomState.k/factorX,-brushTransform[1]*zoomState.k/factorY]
+        let translate = [-brushTransform[0] * zoomState.k / factorX, -brushTransform[1] * zoomState.k / factorY]
 
         console.log(atlas.attr('transform'));
-        atlas.attr('transform',`translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
+        atlas.attr('transform', `translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
       }
 
     }
