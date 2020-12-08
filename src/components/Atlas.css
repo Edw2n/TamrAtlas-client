@@ -54,6 +54,11 @@
     fill: red;
 }
 
+.opaque-background {
+    fill :lightgray;
+    opacity: 0.3;
+}
+
 
 
 
