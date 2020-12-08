@@ -384,9 +384,7 @@ function Atlas(props) {
         let start = [-zoomState.x * (factor/zoomState.k), -zoomState.y * (factor/zoomState.k)]
         let bboxSize = [minimap.select('image').attr('width')/zoomState.k,minimap.select('image').attr('height')/zoomState.k]
         let end = [start[0]+bboxSize[0],start[1]+bboxSize[1]]
-
         console.log(start, end)
-
         mBrush.move(minimapBrush, [start, end]);
 
       }
@@ -769,7 +767,8 @@ function Atlas(props) {
       const mBrush = d3
         .brush()
         .extent([[0, 0], [rightConfig.w, rightConfig.h]])
-        .on('brush', onPrevBrush);
+        .filter(event => event.ctrlKey)
+        .on('brush', onPrevBrush)
 
       const minimapBrush = minimap
         .append('g')
@@ -785,7 +784,14 @@ function Atlas(props) {
       ]);
 
       function onPrevBrush() {
-        return 0;
+        //ctrl key 눌러졌을 때
+        const zoomState = d3.zoomTransform(svg.node());
+        const factor = minimap.select('image').attr('width')/w;
+        let brushTransform = d3.brushSelection(this)[0];
+        let translate = [-brushTransform[0]*zoomState.k/factor,-brushTransform[1]*zoomState.k/factor ]
+
+        console.log(atlas.attr('transform'));
+        atlas.attr('transform',`translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
       }
 
     }
