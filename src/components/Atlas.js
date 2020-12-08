@@ -423,16 +423,12 @@ function Atlas(props) {
             atlas.attr("transform", transform);
           }
 
-          if (!minimap.select('image')) {
-            const factorX = minimap.select('image').attr('width') / w;
-            const factorY = minimap.select('image').attr('height') / h;
-            let start = [-zoomState.x * (factorX / zoomState.k), -zoomState.y * (factorY / zoomState.k)]
-            let bboxSize = [minimap.select('image').attr('width') / zoomState.k, minimap.select('image').attr('height') / zoomState.k]
-            let end = [start[0] + bboxSize[0], start[1] + bboxSize[1]]
-            mBrush.move(minimapBrush, [start, end]);
-          }else {
-            console.log('grid scale change')
-          }
+          const factorX = rightConfig.w / w;
+          const factorY = rightConfig.h / h;
+          let start = [-zoomState.x * (factorX / zoomState.k), -zoomState.y * (factorY / zoomState.k)]
+          let bboxSize = [rightConfig.w / zoomState.k, rightConfig.h / zoomState.k]
+          let end = [start[0] + bboxSize[0], start[1] + bboxSize[1]]
+          mBrush.move(minimapBrush, [start, end]);
 
         }
 
@@ -911,11 +907,10 @@ function Atlas(props) {
         function onPrevBrush() {
           //ctrl key 눌러졌을 때
           const zoomState = d3.zoomTransform(svg.node());
-          const factorX = minimap.select('image').attr('width') / w;
-          const factorY = minimap.select('image').attr('height') / h;
+          const factorX = rightConfig.w / w;
+          const factorY = rightConfig.h / h;
           let brushTransform = d3.brushSelection(this)[0];
           let translate = [-brushTransform[0] * zoomState.k / factorX, -brushTransform[1] * zoomState.k / factorY]
-
           atlas.attr('transform', `translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
         }
 
