@@ -286,6 +286,7 @@ function Atlas(props) {
         .append('g')
         .attr('id', (d, i) => `mountain${i + 1}`)
         .each(function (p, i) {
+          console.log('data',d3.select(this).data())
           d3.select(this)
             .selectAll('rect')
             .data((d) => d.grids)
@@ -761,7 +762,7 @@ function Atlas(props) {
 
       minimap
         .append('image')
-        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background.png')
+        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background-fontup.png')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
 
