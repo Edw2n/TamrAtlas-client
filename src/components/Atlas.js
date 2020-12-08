@@ -520,7 +520,7 @@ function Atlas(props) {
       )
 
       const brush = d3.brush()
-        .extent([[0, 0], [w - rightConfig.w, rightConfig.h]])
+        .extent([[0, 0], [w, h]])
         .filter(event => event.ctrlKey)
         .on("start", brushStart)
         .on("brush", brushed)
@@ -737,7 +737,7 @@ function Atlas(props) {
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
       let wordSeed
-      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU'];
+      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland','follow','맞팔','도','시','도카페'];//여행?카페?
       console.log(hashtags)
       if (hashtags) {
         wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
