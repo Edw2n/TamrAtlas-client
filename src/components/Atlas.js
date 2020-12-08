@@ -321,18 +321,6 @@ function Atlas(props) {
             });
           });
 
-        // function () {
-        //         console.log(this)
-        //         let rect = d3.select(this);
-        //         let targetHashTags = d.data.hashtags;
-        //
-        //         targetHashTags.forEach(tag => {
-        //           rect
-        //             .classed(`tag-${tag}`, true);
-        //         })
-        //         return true;
-        //       }
-
         const top3Data = [ // need to initialize when searched
           {
             rank: 1,
@@ -723,8 +711,8 @@ function Atlas(props) {
         }
 
         function handleClick() { //don't cover multiple
-          let text = d3.select(this)
-
+          let text = d3.select(this);
+          let head_string =  Object.keys(presentTags).length>0 ? 'brushed-tag-' : 'tag-'
           text
             .classed('word-selected', !text.classed('word-selected'))
             .transition()
@@ -737,7 +725,8 @@ function Atlas(props) {
                 .delay(500)
                 .call(function () {
                   mountains
-                    .selectAll(`.brushed-tag-${text.text()}`)
+                    .selectAll(`.${head_string}${text.text()}`)
+                    .classed('tag-highlight',true)
                     .classed('tag-dehighlight', false)
                 })
 
