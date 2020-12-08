@@ -238,10 +238,12 @@ function Atlas(props) {
       // Generate mountain data
       let mountainData = [];
       let mountainPhotos = [];
+
       function thumbnailUrl(idx) {
         const index = idx.toString().padStart(6, '0');
         return 'http://147.46.242.161:10000/thumbnail/' + index;
       }
+
       if (props.instaData.clusters) {
         mountainData = props.instaData.clusters.map((c) => {
           const layers = Math.floor(2 + c.photos.length / 100);
@@ -251,7 +253,7 @@ function Atlas(props) {
             ...g,
             id: 'insta_' + photos[i].idx
           }));
-          mountainPhotos = [ ...mountainPhotos, ...photos.map((p, i) => ({
+          mountainPhotos = [...mountainPhotos, ...photos.map((p, i) => ({
             id: 'insta_' + p.idx,
             url: i === 0 ? p.img_url : thumbnailUrl(p.idx)
           }))];
@@ -669,10 +671,10 @@ function Atlas(props) {
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
       let wordSeed
-      let bannedWords = ['제주도','제주','jeju','광고','jejudo','JEJU'];
+      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU'];
       console.log(hashtags)
       if (hashtags) {
-        wordSeed = Object.keys(hashtags).filter(d=> !bannedWords.includes(d) ).map(d => ({
+        wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
           text: d,
           size: hashtags[d],
           fill: hashtags[d]
@@ -681,7 +683,7 @@ function Atlas(props) {
 
         console.log(wordSeed);
 
-        makecloud(wordSeed.filter(d=>d.size).sort((a, b) => b.size - a.size));
+        makecloud(wordSeed.filter(d => d.size).sort((a, b) => b.size - a.size));
       }
 
       function makecloud(words) {
@@ -736,9 +738,31 @@ function Atlas(props) {
 
       minimap
         .append('image')
-        .attr('xlink:href',process.env.PUBLIC_URL +'minimap-background.png')
+        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background.png')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
+
+      const mBrush = d3
+        .brush()
+        .extent([[0, 0], [rightConfig.w, rightConfig.h]])
+        .on('brush', onPrevBrush);
+
+      const minimapBrush = minimap
+        .append('g')
+        .attr('id','#minimap-brush')
+        .call(mBrush)
+
+      mBrush.move(minimapBrush, [
+      [0, 0],
+      [
+        rightConfig.w,
+        rightConfig.h
+      ]
+    ]);
+
+      function onPrevBrush(){
+        return 0;
+      }
 
     }
 
