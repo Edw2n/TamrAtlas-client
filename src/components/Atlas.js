@@ -12,7 +12,7 @@ let tooltipConfigVanila = {
 
 let popUpConfigVanila = {
   length: 200,
-  like_width : 40,
+  like_width: 40,
   fontSize: 10
 }
 
@@ -168,6 +168,7 @@ function Atlas(props) {
 
       let hashtags = props.instaData.hashtags;
       console.log(hashtags);
+      let presentTags = {};
 
       if (!gridInfo) {
         gridInfo = {
@@ -350,7 +351,7 @@ function Atlas(props) {
 
       detailsPopUP
         .append('text')
-        .attr('id','location')
+        .attr('id', 'location')
         .text('제주 서귀포시 안덕면 병악로 166')
         .attr('x', 1)
         .attr('y', popUpConfig.length / 20)
@@ -361,9 +362,9 @@ function Atlas(props) {
 
       detailsPopUP
         .append('text')
-        .attr('id','likes')
+        .attr('id', 'likes')
         .text('👍563')
-        .attr('x', popUpConfig.length-popUpConfig.like_width +(popUpConfig.like_width/2))
+        .attr('x', popUpConfig.length - popUpConfig.like_width + (popUpConfig.like_width / 2))
         .attr('y', popUpConfig.length / 20)
         .attr('text-anchor', 'middle')
         .attr('alignment-baseline', "central")
@@ -380,7 +381,7 @@ function Atlas(props) {
 
       detailsPopUP
         .append('text')
-        .attr('id','full-address')
+        .attr('id', 'full-address')
         .text('👍563')
         .attr('x', "0")
         .attr('y', popUpConfig.length / 10 + popUpConfig.length / 20)
@@ -430,8 +431,17 @@ function Atlas(props) {
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
           mountains
-            .selectAll('.oreum-grid')
-            .classed("brushed", false);
+            .selectAll('.brushed')
+            .classed("brushed", false)
+            .each(function (d, i) {
+              let rect = d3.select(this);
+              presentTags.forEach(tags=>function(){
+                rect.classed(`brushed-tag-${tag}`, false);
+              })
+            });
+
+          presentTags = {};
+          reloadWordCloud(hashtags)
         }
       }
 
@@ -464,19 +474,46 @@ function Atlas(props) {
         });
       }
 
-      function brushEnd(e) {
+      async function brushEnd(e) {
         let counts = 0;
         counts = mountains.selectAll('.brushed').size()
         let selection_box = d3.selectAll('.spatial-brush > .selection')
 
         if (mountains.selectAll('.brushed').size() > 0) {
-          tooltip.selectAll('text').text(counts)
+          console.log('hire')
+          reloadWordCloud(await getTags())
+          tooltip.selectAll('text').text(counts);
           return tooltip
             .attr("transform", "translate(" + selection_box.attr("x") + "," + (+selection_box.attr("y") - tooltipConfig.height) + ")")
             .style("visibility", "visible")
         }
         return tooltip
           .style("visibility", "hidden")
+      }
+
+      function getTags() { //from brushed grids
+        let freqs = {};
+        let mt = mountains
+          .selectAll('.brushed')
+
+        mt.each(function (d, i) {
+          let rect = d3.select(this);
+          let targetHashTags = d.data.hashtags;
+
+          targetHashTags.forEach(tag => {
+            rect
+              .classed(`brushed-tag-${tag}`, true);
+            if (tag in freqs) {
+              freqs[tag]++
+            } else {
+              freqs[tag] = 1
+            }
+          });
+          console.log(freqs)
+        });
+
+        presentTags = freqs;
+        return freqs
       }
 
       function detailClicked(e, data) {
@@ -737,19 +774,26 @@ function Atlas(props) {
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
       let wordSeed
-      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland','follow','맞팔','도','시','도카페'];//여행?카페?
+      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
       console.log(hashtags)
-      if (hashtags) {
-        wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
-          text: d,
-          size: hashtags[d],
-          fill: hashtags[d]
 
-        }))
+      reloadWordCloud(hashtags)
 
-        console.log(wordSeed);
+      function reloadWordCloud(hashtags) {
 
-        makecloud(wordSeed.filter(d => d.size).sort((a, b) => b.size - a.size));
+        console.log(hashtags)
+        if (hashtags) {
+          wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
+            text: d,
+            size: hashtags[d],
+            fill: hashtags[d]
+
+          }))
+
+          console.log(wordSeed);
+
+          makecloud(wordSeed.filter(d => d.size).sort((a, b) => b.size - a.size));
+        }
       }
 
       function makecloud(words) {
@@ -769,9 +813,14 @@ function Atlas(props) {
 
         function draw(words) {
           mycloud
+            .select('#word-draw')
+            .remove();
+
+          mycloud
             .attr("width", layout.size()[0])
             .attr("height", layout.size()[1])
             .append("g")
+            .attr('id', 'word-draw')
             .attr(
               "transform",
               "translate(" + layout.size()[0] / 2 + "," + layout.size()[1] / 2 + ")"
