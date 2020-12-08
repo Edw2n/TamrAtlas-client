@@ -283,8 +283,6 @@ function Atlas(props) {
           });
         }
 
-        console.log(mountainData)
-
         // Add photos as patterns
         svg.append("defs")
           .selectAll('pattern')
@@ -311,7 +309,6 @@ function Atlas(props) {
           .classed('mountain', true)
           .attr('id', (d, i) => `mountain${i + 1}`)
           .each(function (p, i) {
-            console.log('data', d3.select(this).data())
             d3.select(this)
               .selectAll('rect')
               .data((d) => d.grids)
@@ -332,10 +329,6 @@ function Atlas(props) {
               .on('click', (e, d) => detailClicked(e, d));
 
           });
-
-        console.log(mountains
-          .selectAll('mountain')
-          .data())
 
         d3.selectAll('.oreum-grid')
           .each(function (d, i) {
@@ -807,7 +800,7 @@ function Atlas(props) {
         let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
+        let bannedWords = ['제주도','do','Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
