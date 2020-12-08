@@ -451,17 +451,18 @@ function Atlas(props) {
         // rect 변화 주기 // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
 
         // data 가져오기
-        console.log(data)
+        let detailData = data.data
+        console.log(detailData)
 
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
           .select('text')
-          .text('서귀포, 대한민국 👍563') // 주소 + 좋아요 로 수정
+          .text(`${detailData.new_location}, ${detailData.full_address_text} 👍 ${detailData.likes}`) // 주소 + 좋아요 로 수정
         detailsPopUP
           .select('a')
-          .attr('xlink:href', 'https://www.instagram.com/p/CISn7CPn02Z/')
+          .attr('xlink:href', `${detailData.key}`)
           .select('image')
-          .attr('xlink:href', 'https://cdn.shopify.com/s/files/1/1206/7736/products/WMPeonyPinkFlowers0781Square_1080x.jpg?v=1586743131')
+          .attr('xlink:href', `${detailData.img_url}`)
 
         return detailsPopUP.attr("transform", "translate(" + d3.pointer(e)[0] + "," + d3.pointer(e)[1] + ")")
           .style("visibility", "visible")
