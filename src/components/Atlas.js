@@ -173,7 +173,7 @@ function Atlas(props) {
         let presentTags = {};
         let brushedRects;
 
-        if (data) {
+        if (data.length>0) {
           clusters = data.clusters.sort(function (a, b) {
             return b.photos.length - a.photos.length
             console.log(clusters)
