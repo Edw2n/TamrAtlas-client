@@ -176,7 +176,7 @@ function Atlas(props) {
               "/jeju-1x-array.json",
               "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
               1,
-              2.5,
+              5,
               'half',
               'none',
               18
@@ -184,8 +184,8 @@ function Atlas(props) {
             'half': await makeGridInfo(
               "/jeju-2x-array.json",
               "https://seedling.kr/data/shop/item/1506491618_s",
-              2.5,
               5,
+              25,
               'quarter',
               'vanila',
               9
@@ -193,7 +193,7 @@ function Atlas(props) {
             'quarter': await makeGridInfo(
               "/jeju-4x-array.json",
               "https://image.yes24.com/blogimage/blog/k/s/kse10034/5a33xTQt.jpg",
-              5,
+              25,
               80,
               'none',
               'half',
@@ -314,7 +314,6 @@ function Atlas(props) {
           .each(function (d, i) {
             let rect = d3.select(this);
             let targetHashTags = d.data.hashtags;
-            console.log(targetHashTags);
             targetHashTags.forEach(tag => {
               rect
                 .classed(`tag-${tag}`, true);
@@ -418,18 +417,16 @@ function Atlas(props) {
           const zoomState = d3.zoomTransform(svg.node());
           if (zoomState.k > gridInfo[level].end) {
             setGrids(gridInfo[level].next);
-            console.log('scale up');
           } else if (zoomState.k < gridInfo[level].start) {
             setGrids(gridInfo[level].prev);
-            console.log('scale down');
           } else {
             atlas.attr("transform", transform);
           }
 
-          const factorX = minimap.select('image').attr('width') / w;
-          const factorY = minimap.select('image').attr('height') / h;
+          const factorX = rightConfig.w / w;
+          const factorY = rightConfig.h / h;
           let start = [-zoomState.x * (factorX / zoomState.k), -zoomState.y * (factorY / zoomState.k)]
-          let bboxSize = [minimap.select('image').attr('width') / zoomState.k, minimap.select('image').attr('height') / zoomState.k]
+          let bboxSize = [rightConfig.w / zoomState.k, rightConfig.h / zoomState.k]
           let end = [start[0] + bboxSize[0], start[1] + bboxSize[1]]
           mBrush.move(minimapBrush, [start, end]);
 
@@ -564,7 +561,7 @@ function Atlas(props) {
         svg.call(
           d3.zoom()
             .extent([[0, 0], [w, h]])
-            .scaleExtent([1, 60])
+            .scaleExtent([1, 23])
             .on("zoom", zoomed),
           d3.zoomIdentity
             .scale(gridInfo[level].start * 2)
@@ -712,7 +709,7 @@ function Atlas(props) {
 
         function handleClick() { //don't cover multiple
           let text = d3.select(this);
-          let head_string =  Object.keys(presentTags).length>0 ? 'brushed-tag-' : 'tag-'
+          let head_string = Object.keys(presentTags).length > 0 ? 'brushed-tag-' : 'tag-'
           text
             .classed('word-selected', !text.classed('word-selected'))
             .transition()
@@ -726,7 +723,7 @@ function Atlas(props) {
                 .call(function () {
                   mountains
                     .selectAll(`.${head_string}${text.text()}`)
-                    .classed('tag-highlight',true)
+                    .classed('tag-highlight', true)
                     .classed('tag-dehighlight', false)
                 })
 
@@ -910,11 +907,10 @@ function Atlas(props) {
         function onPrevBrush() {
           //ctrl key 눌러졌을 때
           const zoomState = d3.zoomTransform(svg.node());
-          const factorX = minimap.select('image').attr('width') / w;
-          const factorY = minimap.select('image').attr('height') / h;
+          const factorX = rightConfig.w / w;
+          const factorY = rightConfig.h / h;
           let brushTransform = d3.brushSelection(this)[0];
           let translate = [-brushTransform[0] * zoomState.k / factorX, -brushTransform[1] * zoomState.k / factorY]
-
           atlas.attr('transform', `translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
         }
 
