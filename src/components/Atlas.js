@@ -465,6 +465,7 @@ function Atlas(props) {
       )
 
       const brush = d3.brush()
+        .extent([[0, 0], [w - rightConfig.w, rightConfig.h]])
         .filter(event => event.ctrlKey)
         .on("start", brushStart)
         .on("brush", brushed)
@@ -635,6 +636,16 @@ function Atlas(props) {
 
       function brushMountain() {
         let selectedGroup = d3.select(this)
+        let clusterNum = selectedGroup.data()[0].clusterNumber;
+        let bbox = mountains
+          .select(`#mountain${clusterNum}`)
+          .data()[0]
+          .bbox
+
+        console.log(bbox);
+        //d3.selectAll('.spatial-brush').raise();
+        brush.move(d3.select('.spatial-brush'), bbox);
+
         let left = top3BarChart.selectAll('g').filter(d => d.rank !== selectedGroup.data()[0].rank)
         selectedGroup.classed('selected', !selectedGroup.classed('selected'))
 
@@ -652,6 +663,7 @@ function Atlas(props) {
             selectedGroup
               .selectAll('.top3-bar,.top3-text')
               .classed('selected', selectedGroup.classed('selected'))
+
           })
 
       }
@@ -749,18 +761,18 @@ function Atlas(props) {
 
       const minimapBrush = minimap
         .append('g')
-        .attr('id','#minimap-brush')
+        .attr('id', '#minimap-brush')
         .call(mBrush)
 
       mBrush.move(minimapBrush, [
-      [0, 0],
-      [
-        rightConfig.w,
-        rightConfig.h
-      ]
-    ]);
+        [0, 0],
+        [
+          rightConfig.w,
+          rightConfig.h
+        ]
+      ]);
 
-      function onPrevBrush(){
+      function onPrevBrush() {
         return 0;
       }
 
