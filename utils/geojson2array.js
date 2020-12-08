@@ -2,7 +2,7 @@ const fs = require('fs');
 const d3 = require('d3');
 
 function geojson2array(geojson, gridMultiplier) {
-  const distance = 0.00944 / gridMultiplier;
+  const distance = 0.00934 / gridMultiplier;
 
   const coords = geojson.features.map((f) => {
     let latAvg = 0;
@@ -34,13 +34,13 @@ function geojson2array(geojson, gridMultiplier) {
   const yMin = Math.min(...ys);
   const yMax = Math.max(...ys);
 
-  const cols = Math.round((xMax - xMin) / distance) + 1;
-  const rows = Math.round((yMax - yMin) / distance) + 1;
+  const cols = Math.floor((xMax - xMin) / distance) + 1;
+  const rows = Math.floor((yMax - yMin) / distance) + 1;
 
   function getIndex(x, y) {
     return [
-      Math.round((y - yMin) / (yMax - yMin) * (rows - 1)),
-      Math.round((x - xMin) / (xMax - xMin) * (cols - 1))
+      Math.floor((y - yMin) / (yMax - yMin) * (rows - 1)),
+      Math.floor((x - xMin) / (xMax - xMin) * (cols - 1))
     ]
   }
 
