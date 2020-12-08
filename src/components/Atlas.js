@@ -152,6 +152,9 @@ function mountain(layers, coord, gridData) {
 
 function Atlas(props) {
   let data = props.instaData;
+  let clusters = [];
+  const top3Data = [];
+
   console.log(data);
 
   let w = 2000;
@@ -169,6 +172,23 @@ function Atlas(props) {
         let hashtags = props.instaData.hashtags;
         let presentTags = {};
         let brushedRects;
+
+        if (data) {
+          clusters = data.clusters.sort(function (a, b) {
+            return b.photos.length - a.photos.length
+            console.log(clusters)
+          })
+
+          for (let i = 0; i < 3; i++) {
+            top3Data[i] = {
+              rank: i + 1,
+              region: clusters[i].town,
+              value: clusters[i].photos.length,
+              clusterNumber: i + 1
+            }
+          }
+        }
+
 
         if (!gridInfo) {
           gridInfo = {
@@ -263,6 +283,8 @@ function Atlas(props) {
           });
         }
 
+        console.log(mountainData)
+
         // Add photos as patterns
         svg.append("defs")
           .selectAll('pattern')
@@ -286,6 +308,7 @@ function Atlas(props) {
           .data(mountainData)
           .enter()
           .append('g')
+          .classed('mountain', true)
           .attr('id', (d, i) => `mountain${i + 1}`)
           .each(function (p, i) {
             console.log('data', d3.select(this).data())
@@ -310,6 +333,10 @@ function Atlas(props) {
 
           });
 
+        console.log(mountains
+          .selectAll('mountain')
+          .data())
+
         d3.selectAll('.oreum-grid')
           .each(function (d, i) {
             let rect = d3.select(this);
@@ -319,28 +346,6 @@ function Atlas(props) {
                 .classed(`tag-${tag}`, true);
             });
           });
-
-        const top3Data = [ // need to initialize when searched
-          {
-            rank: 1,
-            region: '애월읍',
-            value: 309,
-            clusterNumber: 2
-          },
-          {
-            rank: 2,
-            region: '서산면',
-            value: 61,
-            clusterNumber: 3
-          }
-          ,
-          {
-            rank: 3,
-            region: '중문읍',
-            value: 17,
-            clusterNumber: 1
-          }
-        ];
 
         d3.selectAll('.tooltip').remove()
 
