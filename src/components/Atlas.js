@@ -12,6 +12,7 @@ let tooltipConfigVanila = {
 
 let popUpConfigVanila = {
   length: 200,
+  like_width : 40,
   fontSize: 10
 }
 
@@ -337,7 +338,7 @@ function Atlas(props) {
         .attr('x', "0")
         .attr('y', "0")
         .attr("width", popUpConfig.length)
-        .attr("height", (popUpConfig.length / 10) * 11)
+        .attr("height", (popUpConfig.length / 10) * 12)
 
       detailsPopUP
         .append("rect")
@@ -347,11 +348,43 @@ function Atlas(props) {
         .attr("height", popUpConfig.length / 10)
         .attr('fill', '#ffffff')
 
-      detailsPopUP.append('text')
-        .text('제주 서귀포시 안덕면 병악로 166          👍563')
-        .attr('x', popUpConfig.length / 2)
+      detailsPopUP
+        .append('text')
+        .attr('id','location')
+        .text('제주 서귀포시 안덕면 병악로 166')
+        .attr('x', 1)
+        .attr('y', popUpConfig.length / 20)
+        .attr('text-anchor', 'right')
+        .attr('alignment-baseline', "central")
+        .attr('fill', 'black')
+        .attr('font-size', popUpConfig.fontSize)
+
+      detailsPopUP
+        .append('text')
+        .attr('id','likes')
+        .text('👍563')
+        .attr('x', popUpConfig.length-popUpConfig.like_width +(popUpConfig.like_width/2))
         .attr('y', popUpConfig.length / 20)
         .attr('text-anchor', 'middle')
+        .attr('alignment-baseline', "central")
+        .attr('fill', 'black')
+        .attr('font-size', popUpConfig.fontSize)
+
+      detailsPopUP
+        .append("rect")
+        .attr('x', "0")
+        .attr('y', popUpConfig.length / 10)
+        .attr("width", popUpConfig.length)
+        .attr("height", popUpConfig.length / 10)
+        .attr('fill', '#ffffff')
+
+      detailsPopUP
+        .append('text')
+        .attr('id','full-address')
+        .text('👍563')
+        .attr('x', "0")
+        .attr('y', popUpConfig.length / 10 + popUpConfig.length / 20)
+        .attr('text-anchor', 'left')
         .attr('alignment-baseline', "central")
         .attr('fill', 'black')
         .attr('font-size', popUpConfig.fontSize)
@@ -361,7 +394,7 @@ function Atlas(props) {
         .attr('xlink:href', 'https://www.instagram.com/')
         .append("svg:image")
         .attr('x', "0")
-        .attr('y', popUpConfig.length / 10)
+        .attr('y', popUpConfig.length / 5)
         .attr("width", popUpConfig.length)
         .attr("height", popUpConfig.length)
         .attr('xlink:href', 'http://jetprogramme.org/wp-content/uploads/2017/03/Square-Instagram-Logo.png')
@@ -456,8 +489,17 @@ function Atlas(props) {
 
         // 사진, 주소, 좋아요, url 수정
         detailsPopUP
-          .select('text')
-          .text(`${detailData.new_location}, ${detailData.full_address_text} 👍 ${detailData.likes}`) // 주소 + 좋아요 로 수정
+          .select('#location')
+          .text(`${detailData.new_location}`);
+
+        detailsPopUP
+          .select('#likes')
+          .text(`👍${detailData.likes}`)
+
+        detailsPopUP
+          .select('#full-address')
+          .text(`${detailData.full_address_text}`)
+
         detailsPopUP
           .select('a')
           .attr('xlink:href', `${detailData.key}`)
