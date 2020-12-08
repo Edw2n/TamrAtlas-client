@@ -150,7 +150,8 @@ function mountain(layers, coord, gridData) {
 
 
 function Atlas(props) {
-  //let data = props.instaData;
+  let data = props.instaData;
+  console.log(data);
 
   let w = 2000;
   let h = 1100;
@@ -237,10 +238,12 @@ function Atlas(props) {
       // Generate mountain data
       let mountainData = [];
       let mountainPhotos = [];
+
       function thumbnailUrl(idx) {
         const index = idx.toString().padStart(6, '0');
         return 'http://147.46.242.161:10000/thumbnail/' + index;
       }
+
       if (props.instaData.clusters) {
         mountainData = props.instaData.clusters.map((c) => {
           const layers = Math.floor(2 + c.photos.length / 100);
@@ -250,7 +253,7 @@ function Atlas(props) {
             ...g,
             id: 'insta_' + photos[i].idx
           }));
-          mountainPhotos = [ ...mountainPhotos, ...photos.map((p, i) => ({
+          mountainPhotos = [...mountainPhotos, ...photos.map((p, i) => ({
             id: 'insta_' + p.idx,
             url: i === 0 ? p.img_url : thumbnailUrl(p.idx)
           }))];
@@ -365,6 +368,7 @@ function Atlas(props) {
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
+        console.log(zoomState)
         if (zoomState.k > gridInfo[level].end) {
           setGrids(gridInfo[level].next);
           console.log('scale up');
@@ -374,6 +378,16 @@ function Atlas(props) {
         } else {
           atlas.attr("transform", transform);
         }
+
+      const factorX = minimap.select('image').attr('width')/w;
+      const factorY = minimap.select('image').attr('height')/h;
+      console.log(factorX,factorY)
+        let start = [-zoomState.x * (factorX/zoomState.k), -zoomState.y * (factorY/zoomState.k)]
+        let bboxSize = [minimap.select('image').attr('width')/zoomState.k,minimap.select('image').attr('height')/zoomState.k]
+        let end = [start[0]+bboxSize[0],start[1]+bboxSize[1]]
+        console.log(start, end)
+        mBrush.move(minimapBrush, [start, end]);
+
       }
 
       function brushStart() {
@@ -462,6 +476,7 @@ function Atlas(props) {
       )
 
       const brush = d3.brush()
+        .extent([[0, 0], [w - rightConfig.w, rightConfig.h]])
         .filter(event => event.ctrlKey)
         .on("start", brushStart)
         .on("brush", brushed)
@@ -632,6 +647,16 @@ function Atlas(props) {
 
       function brushMountain() {
         let selectedGroup = d3.select(this)
+        let clusterNum = selectedGroup.data()[0].clusterNumber;
+        let bbox = mountains
+          .select(`#mountain${clusterNum}`)
+          .data()[0]
+          .bbox
+
+        console.log(bbox);
+        //d3.selectAll('.spatial-brush').raise();
+        brush.move(d3.select('.spatial-brush'), bbox);
+
         let left = top3BarChart.selectAll('g').filter(d => d.rank !== selectedGroup.data()[0].rank)
         selectedGroup.classed('selected', !selectedGroup.classed('selected'))
 
@@ -649,6 +674,7 @@ function Atlas(props) {
             selectedGroup
               .selectAll('.top3-bar,.top3-text')
               .classed('selected', selectedGroup.classed('selected'))
+
           })
 
       }
@@ -668,10 +694,10 @@ function Atlas(props) {
       let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
       let wordSeed
-      let bannedWords = ['제주도','제주','jeju','광고']
+      let bannedWords = ['제주도', '제주', 'jeju', '광고', 'jejudo', 'JEJU'];
       console.log(hashtags)
       if (hashtags) {
-        wordSeed = Object.keys(hashtags).filter(d=> !bannedWords.includes(d) ).map(d => ({
+        wordSeed = Object.keys(hashtags).filter(d => !bannedWords.includes(d)).map(d => ({
           text: d,
           size: hashtags[d],
           fill: hashtags[d]
@@ -680,7 +706,7 @@ function Atlas(props) {
 
         console.log(wordSeed);
 
-        makecloud(wordSeed.filter(d=>d.size).sort((a, b) => b.size - a.size));
+        makecloud(wordSeed.filter(d => d.size).sort((a, b) => b.size - a.size));
       }
 
       function makecloud(words) {
@@ -732,10 +758,43 @@ function Atlas(props) {
         .attr('id', 'minimap')
         .attr('transform', `translate(${w - rightConfig.w},${h - rightConfig.h})`)
 
+
       minimap
-        .append('rect')
+        .append('image')
+        .attr('xlink:href', process.env.PUBLIC_URL + 'minimap-background.png')
         .attr('width', rightConfig.w)
         .attr('height', rightConfig.h)
+
+      const mBrush = d3
+        .brush()
+        .extent([[0, 0], [rightConfig.w, rightConfig.h]])
+        .filter(event => event.ctrlKey)
+        .on('brush', onPrevBrush)
+
+      const minimapBrush = minimap
+        .append('g')
+        .attr('id', '#minimap-brush')
+        .call(mBrush)
+
+      mBrush.move(minimapBrush, [
+        [0, 0],
+        [
+          rightConfig.w,
+          rightConfig.h
+        ]
+      ]);
+
+      function onPrevBrush() {
+        //ctrl key 눌러졌을 때
+        const zoomState = d3.zoomTransform(svg.node());
+        const factorX = minimap.select('image').attr('width')/w;
+        const factorY = minimap.select('image').attr('height')/h;
+        let brushTransform = d3.brushSelection(this)[0];
+        let translate = [-brushTransform[0]*zoomState.k/factorX,-brushTransform[1]*zoomState.k/factorY]
+
+        console.log(atlas.attr('transform'));
+        atlas.attr('transform',`translate(${translate[0]},${translate[1]}) scale(${zoomState.k})`)
+      }
 
     }
 
