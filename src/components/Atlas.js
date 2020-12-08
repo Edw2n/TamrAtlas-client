@@ -368,6 +368,7 @@ function Atlas(props) {
 
       function zoomed({transform}) {
         const zoomState = d3.zoomTransform(svg.node());
+        console.log(zoomState)
         if (zoomState.k > gridInfo[level].end) {
           setGrids(gridInfo[level].next);
           console.log('scale up');
@@ -377,6 +378,17 @@ function Atlas(props) {
         } else {
           atlas.attr("transform", transform);
         }
+
+      const factor = minimap.select('image').attr('width')/w;
+      console.log(factor)
+        let start = [-zoomState.x * (factor/zoomState.k), -zoomState.y * (factor/zoomState.k)]
+        let bboxSize = [minimap.select('image').attr('width')/zoomState.k,minimap.select('image').attr('height')/zoomState.k]
+        let end = [start[0]+bboxSize[0],start[1]+bboxSize[1]]
+
+        console.log(start, end)
+
+        mBrush.move(minimapBrush, [start, end]);
+
       }
 
       function brushStart() {
