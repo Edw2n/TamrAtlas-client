@@ -295,6 +295,8 @@ function Atlas(props) {
             .enter()
             .append('rect')
             .classed("oreum-grid", true)
+            .classed("tag-dehighlight", false)
+            .classed("tag-highlight", false)
             .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300)
             .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150)
             .attr('width', (d) => d.size * gridInfo[level].size)
@@ -427,6 +429,12 @@ function Atlas(props) {
 
         if (d3.brushSelection(this)[0][0] == d3.brushSelection(this)[1][0]) {
           d3.selectAll('.spatial-brush').raise();
+          mountains
+            .selectAll('.tag-dehighlight')
+            .classed("tag-dehighlight", false)
+          mountains
+            .selectAll('.tag-highlight')
+            .classed("tag-highlight", false)
           mountains
             .selectAll('.brushed')
             .classed("brushed", false)
@@ -701,13 +709,13 @@ function Atlas(props) {
           .call(function () {
             mountains
               .selectAll('.oreum-grid')
-              .classed('tag-dehighlight',text.classed('word-selected'))
+              .classed('tag-dehighlight', text.classed('word-selected'))
               .transition()
               .delay(500)
               .call(function () {
                 mountains
                   .selectAll(`.brushed-tag-${text.text()}`)
-                  .classed('tag-dehighlight', !text.classed('word-selected'))
+                  .classed('tag-dehighlight', false)
               })
 
           })
