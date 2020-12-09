@@ -23,7 +23,7 @@ function App() {
   const [initData, setInitData] = useState(null);
   const [items, setItems] = useState([])
   const [negItems, setNegItems] = useState([])
-  const [filteredData, setFilteredData] = useState([])
+  const [filteredData, setFilteredData] = useState(null)
 
   // let data = null;
   // async function fetchData() {
@@ -167,7 +167,8 @@ function App() {
         {timeDataReady ? <BrushableBar data={timeData} type='time' from={timeFrom} to={timeTo} setFrom={setTimeFrom} setTo={setTimeTo} /> : null}
         {timeDataReady && monthDataReady ? <Button onClick={brushEndFetch} icon={<Filter/>} label='Filter' color='orange'/> : null}
       </Box>
-      <Atlas instaData={instaData}  level={level} setGrids={setGrids} />
+      
+      <Atlas instaData={filteredData?filteredData:instaData}  level={level} setGrids={setGrids} />
     </div>
   );
 }
