@@ -732,7 +732,7 @@ function Atlas(props) {
                 .call(function () {
                   mountains
                     .selectAll(`.${head_string}${text.text()}`)
-                    .classed('tag-highlight', true)
+                    .classed('tag-highlight', text.classed('word-selected'))
                     .classed('tag-dehighlight', false)
                 })
 
