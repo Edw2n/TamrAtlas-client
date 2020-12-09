@@ -7,8 +7,8 @@ import { Instagram } from 'grommet-icons'
 function SearchBar(props) {
   const [value, setValue] = useState('')
   const [error, setError] = useState(null)
-  const [items, setItems] = useState([])
-  const [negItems, setNegItems] = useState([])
+  // const [props.items, props.setItems] = useState([])
+  // const [props.negItems, props.setNegItems] = useState([])
 
   async function fetchData(include, exclude) {
     const { data } = await axios.get('http://147.46.242.161:10000/search', {
@@ -36,12 +36,12 @@ function SearchBar(props) {
         setValue("");
         if (val.charAt(0) == '-') {
           val = val.slice(1, val.length).trim()
-          fetchData(items, [...negItems, val]);
-          setNegItems([...negItems, val]);
+          fetchData(props.items, [...props.negItems, val]);
+          props.setNegItems([...props.negItems, val]);
         }
         else {
-          fetchData([...items, val], negItems);
-          setItems([...items, val]);
+          fetchData([...props.items, val], props.negItems);
+          props.setItems([...props.items, val]);
         }
       }
     }
@@ -53,15 +53,15 @@ function SearchBar(props) {
   }
 
   const handleDelete = (item) => {
-    const newItems = items.filter(i => i !== item);
-    fetchData(newItems, negItems);
-    setItems(newItems);
+    const newItems = props.items.filter(i => i !== item);
+    fetchData(newItems, props.negItems);
+    props.setItems(newItems);
   }
 
   const handleNegDelete = (item) => {
-    const newNegItems = negItems.filter(i => i !== item);
-    fetchData(items, newNegItems);
-    setNegItems(newNegItems);
+    const newNegItems = props.negItems.filter(i => i !== item);
+    fetchData(props.items, newNegItems);
+    props.setNegItems(newNegItems);
   }
 
   const handlePaste = (event) => {
@@ -69,26 +69,26 @@ function SearchBar(props) {
 
     let paste = event.clipboardData.getData('text')
     if (paste.charAt(0) == '-') {
-      const newNegItems = [...negItems, paste];
-      fetchData(items, newNegItems);
-      setNegItems(newNegItems);
+      const newNegItems = [...props.negItems, paste];
+      fetchData(props.items, newNegItems);
+      props.setNegItems(newNegItems);
     }
     else {
-      const newItems = [...items, ...paste];
-      fetchData(newItems, negItems);
-      setItems(newItems);
+      const newItems = [...props.items, ...paste];
+      fetchData(newItems, props.negItems);
+      props.setItems(newItems);
     }
   }
 
   const isValid = (item) => {
     let err = null
 
-    if (items.includes(item)) {
+    if (props.items.includes(item)) {
       err = `${item} has already been added.`;
     }
     if (item.charAt(0) == '-') {
       let sliced = item.slice(1, item.length).trim()
-      if (negItems.includes(sliced)) {
+      if (props.negItems.includes(sliced)) {
         err = `${sliced} has already been added.`;
       }
     }
@@ -123,7 +123,7 @@ function SearchBar(props) {
         </Box>
 
         <Box margin={{ left: 'medium', top: 'xsmall' }} direction='row'>
-          {items.map(item => (
+          {props.items.map(item => (
             <div className="tag-item" key={item}>
               {item}
               <button
@@ -139,7 +139,7 @@ function SearchBar(props) {
 
 
         <Box margin='xsmall' direction='row'>
-          {negItems.map(negItem => (
+          {props.negItems.map(negItem => (
             <div className="tag-item-neg" key={negItem}>
               {negItem}
               <button

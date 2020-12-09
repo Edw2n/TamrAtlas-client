@@ -1,3 +1,10 @@
+.bar-time {
+  /* float: left; */
+}
+
+.bar-month {
+  /* float: left; */
+}
 
 svg {
     font: 10px sans-serif;
@@ -20,9 +27,9 @@ svg {
     shape-rendering: crispEdges;
   }
   
-  .brush .selection {
+  .x-brush .selection {
     stroke: #fff;
-    fill: steelblue;
-    fill-opacity: .25;
+    fill: orange;
+    fill-opacity: .4;
     shape-rendering: crispEdges;
   }
