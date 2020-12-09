@@ -811,7 +811,7 @@ function Atlas(props) {
         let color = d3.scaleSequential(d3.interpolateYlGnBu); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ["도카페","도맛집추천","도","도여행","제주",'제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페','island'];//여행?카페?
+        let bannedWords = ["도피자","도카페","도맛집추천","도","도여행","제주",'제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페','island'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
