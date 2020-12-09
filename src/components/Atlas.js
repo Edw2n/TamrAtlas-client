@@ -153,15 +153,15 @@ function mountain(layers, coord, gridData) {
 function Atlas(props) {
   let data = props.instaData;
   let clusters = [];
-  const top3Data = [];
 
   console.log(data);
 
   let w = 2000;
   let h = 1100;
 
-  let tooltipConfig = {}
-  let popUpConfig = {}
+  let tooltipConfig = {};
+  let top3Data = [];
+  let popUpConfig = {};
 
   let gridInfo;
   const [level, setGrids] = useState(['vanila']);
@@ -170,24 +170,9 @@ function Atlas(props) {
       async function drawMap() {
 
         let hashtags = props.instaData.hashtags;
+        let clusters = props.instaData.clusters;
         let presentTags = {};
         let brushedRects;
-
-        if (data.length>0) {
-          clusters = data.clusters.sort(function (a, b) {
-            return b.photos.length - a.photos.length
-            console.log(clusters)
-          })
-
-          for (let i = 0; i < 3; i++) {
-            top3Data[i] = {
-              rank: i + 1,
-              region: clusters[i].town,
-              value: clusters[i].photos.length,
-              clusterNumber: i + 1
-            }
-          }
-        }
 
 
         if (!gridInfo) {
@@ -627,32 +612,54 @@ function Atlas(props) {
           .attr('id', 'top3')
           .attr('transform', 'translate(10,0)')
 
-        const bars = top3BarChart
-          .selectAll('g')
-          .data(top3Data)
-          .join('g')
-          .attr('transform', d => `translate(0,${10 + (d.rank - 1) * 50})`)
-          .on('mouseover', highlightMountain)
-          .on('mouseout', dehighlightMountain)
-          .on('click', brushMountain)
 
-        bars
-          .append('rect')
-          .classed('top3-bar', true)
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', d => d.value)
-          .attr('height', 30)
+        await drawBarchart(data.clusters);
 
-        bars
-          .append('text')
-          .classed('top3-text', true)
-          .text(d => d.region)
-          .attr('x', d => d.value + 5)
-          .attr('y', 15)
-          .attr('fill', '#000000')
-          .attr('font-size', 25)
-          .attr('alignment-baseline', "central")
+
+        async function drawBarchart(clusters) {
+
+          if (clusters) {
+          top3Data = await clusters.sort(function (a, b) {
+            return b.photos.length - a.photos.length
+          }).map(function (v, i) {
+            return {
+              rank: i + 1,
+              region: v.town,
+              value: v.photos.length,
+              clusterNumber: i + 1
+            }
+
+          })
+        }
+
+          const bars = top3BarChart
+            .selectAll('g')
+            .data(top3Data)
+            .join('g')
+            .attr('transform', d => `translate(0,${10 + (d.rank - 1) * 50})`)
+            .on('mouseover', highlightMountain)
+            .on('mouseout', dehighlightMountain)
+            .on('click', brushMountain)
+
+          bars
+            .append('rect')
+            .classed('top3-bar', true)
+            .attr('x', 0)
+            .attr('y', 0)
+            .attr('width', d => d.value)
+            .attr('height', 30)
+
+          bars
+            .append('text')
+            .classed('top3-text', true)
+            .text(d => d.region)
+            .attr('x', d => d.value + 5)
+            .attr('y', 15)
+            .attr('fill', '#000000')
+            .attr('font-size', 25)
+            .attr('alignment-baseline', "central")
+
+        }
 
         function highlightMountain() {
           let hoveredGroup = d3.select(this)
@@ -800,7 +807,7 @@ function Atlas(props) {
         let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ['제주도','do','Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
+        let bannedWords = ['제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
@@ -918,7 +925,7 @@ function Atlas(props) {
     }
 
     ,
-    [level, props.instaData]
+    [level, props.instaData, top3Data]
   );
 
   const svg = d3.select('#SummaryView');
