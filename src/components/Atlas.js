@@ -254,7 +254,7 @@ function Atlas(props) {
 
         if (props.instaData.clusters) {
           mountainData = props.instaData.clusters.map((c) => {
-            const layers = Math.floor(2 + c.photos.length / 60);
+            const layers = Math.floor(2 + c.photos.length / 50);
             const m = mountain(layers, c.center, gridData);
             const photos = c.photos.slice(0, m.grids.length);
             m.grids = m.grids.map((g, i) => ({
