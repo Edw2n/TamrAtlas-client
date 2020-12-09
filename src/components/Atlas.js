@@ -181,7 +181,7 @@ function Atlas(props) {
               "/jeju-1x-array.json",
               "https://previews.123rf.com/images/taratata/taratata1711/taratata171100020/89494129-%EC%88%98%EA%B5%AD-%EC%88%98%EA%B5%AD-%EA%B1%B0%EB%AF%B8-%EC%95%84%EB%A6%84-%EB%8B%A4%EC%9A%B4-%EB%B3%B4%EB%9D%BC%EC%83%89-%EC%88%98-%EA%B5%AD-%EA%BD%83-%EA%B7%BC%EC%A0%91%EC%9E%85%EB%8B%88%EB%8B%A4-%EA%BD%83%EC%A7%91%EC%97%90-%EC%84%A0%EB%B0%98%EC%9E%85%EB%8B%88%EB%8B%A4-%ED%8F%89%EB%A9%B4%EB%8F%84-.jpg",
               1,
-              5,
+              4,
               'half',
               'none',
               18
@@ -189,7 +189,7 @@ function Atlas(props) {
             'half': await makeGridInfo(
               "/jeju-2x-array.json",
               "https://seedling.kr/data/shop/item/1506491618_s",
-              5,
+              4,
               25,
               'quarter',
               'vanila',
@@ -254,7 +254,7 @@ function Atlas(props) {
 
         if (props.instaData.clusters) {
           mountainData = props.instaData.clusters.map((c) => {
-            const layers = Math.floor(2 + c.photos.length / 100);
+            const layers = Math.floor(2 + c.photos.length / 60);
             const m = mountain(layers, c.center, gridData);
             const photos = c.photos.slice(0, m.grids.length);
             m.grids = m.grids.map((g, i) => ({

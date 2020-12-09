@@ -13,7 +13,7 @@ function SearchBar(props) {
   async function fetchData(include, exclude) {
     const { data } = await axios.get('http://147.46.242.161:10000/search', {
       crossdomain: true,
-      params: { include, exclude }
+      params: { include, exclude, cluster_num:6 }
     });
     props.setInstaData(data);
   }
