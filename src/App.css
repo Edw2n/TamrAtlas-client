@@ -39,6 +39,14 @@
   font-family: "San Francisco";
   font-weight: 400;
   src: url("https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff");
+  
 }
 
-* { font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Spoqa Han Sans Neo', 'sans-serif'; }
+@font-face {
+  font-family: 'IBMPlexSansKR-Regular';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_20-07@1.0/IBMPlexSansKR-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+* { font-family: -apple-system, BlinkMacSystemFont, 'San Francisco', 'IBMPlexSansKR-Regular', 'Spoqa Han Sans Neo', 'sans-serif'; }
