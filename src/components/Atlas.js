@@ -229,8 +229,8 @@ function Atlas(props) {
 
         // Draw map as grids
         const atlas = svg.append('g')
-          .attr('id','atlas')
-          //.attr('transform','translate(-150.86,22.75)');
+          .attr('id', 'atlas')
+        //.attr('transform','translate(-150.86,22.75)');
 
         const map = atlas.append('g');
         map
@@ -239,12 +239,12 @@ function Atlas(props) {
           .enter()
           .append('rect')
           .attr('class', 'grid')
-          .attr('class','background-grid')
+          .attr('class', 'background-grid')
           .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size / 6)
           .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size / 6)
           .attr('width', gridInfo[level].size / 3)
           .attr('height', gridInfo[level].size / 3)
-          //.attr('fill', 'orange');
+        //.attr('fill', 'orange');
 
         // Generate mountain data
         let mountainData = [];
@@ -515,9 +515,10 @@ function Atlas(props) {
           return freqs
         }
 
-        function cutAddress(text){
-         console.log(text.slice(text.slice(25).lastIndexOf(',')));
+        function cutAddress(text) {
+          console.log(text.slice(text.slice(25).lastIndexOf(',')));
         }
+
         function detailClicked(e, data) {
           let rect = e.currentTarget;
           // rect 변화 주기 // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
@@ -536,7 +537,7 @@ function Atlas(props) {
 
           detailsPopUP
             .select('#full-address')
-            .text(`${detailData.full_address_text.slice(0,detailData.full_address_text.slice(0,25).lastIndexOf(','))}`)
+            .text(`${detailData.full_address_text.slice(0, detailData.full_address_text.slice(0, 25).lastIndexOf(','))}`)
 
           detailsPopUP
             .select('a')
@@ -626,18 +627,18 @@ function Atlas(props) {
         async function drawBarchart(clusters) {
 
           if (clusters) {
-          top3Data = await clusters.sort(function (a, b) {
-            return b.photos.length - a.photos.length
-          }).map(function (v, i) {
-            return {
-              rank: i + 1,
-              region: v.town,
-              value: v.photos.length,
-              clusterNumber: i + 1
-            }
+            top3Data = await clusters.sort(function (a, b) {
+              return b.photos.length - a.photos.length
+            }).map(function (v, i) {
+              return {
+                rank: i + 1,
+                region: v.town,
+                value: v.photos.length,
+                clusterNumber: i + 1
+              }
 
-          })
-        }
+            })
+          }
 
           const bars = top3BarChart
             .selectAll('g')
@@ -769,14 +770,28 @@ function Atlas(props) {
         function brushMountain() {
           let selectedGroup = d3.select(this)
           let clusterNum = selectedGroup.data()[0].clusterNumber;
+          let bbox_x = [];
+          let bbox_y = [];
+          let bbox_endX = [];
+          let bbox_endY = [];
+
           let bbox = mountains
             .select(`#mountain${clusterNum}`)
-            .data()[0]
-            .bbox
+            .selectAll('.oreum-grid')
+            .each(function (d, i) {
+              let rect = d3.select(this);
+              bbox_x.push(Number(rect.attr('x')));
+              bbox_y.push(Number(rect.attr('y')));
+              bbox_endX.push(Number(rect.attr('x')) + Number(rect.attr('width')));
+              bbox_endY.push(Number(rect.attr('y')) + Number(rect.attr('height')));
+            });
+
+          //.data()[0]
+          //.bbox
 
           console.log(bbox);
-          //d3.selectAll('.spatial-brush').raise();
-          brush.move(d3.select('.spatial-brush'), bbox);
+          d3.selectAll('.spatial-brush').raise();
+          brush.move(d3.select('.spatial-brush'), [[Math.min(...bbox_x), Math.min(...bbox_y)],[Math.max(...bbox_endX), Math.max(...bbox_endY)]]);
 
           let left = top3BarChart.selectAll('g').filter(d => d.rank !== selectedGroup.data()[0].rank)
           selectedGroup.classed('selected', !selectedGroup.classed('selected'))
@@ -814,7 +829,7 @@ function Atlas(props) {
         let color = d3.scaleSequential(d3.interpolateYlGnBu); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ["도피자","도카페","도맛집추천","도","도여행","제주",'제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페','island'];//여행?카페?
+        let bannedWords = ["도피자", "도카페", "도맛집추천", "도", "도여행", "제주", '제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페', 'island'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
@@ -841,8 +856,8 @@ function Atlas(props) {
             .words(words)
             .padding(3)
             .rotate(d => ~~(Math.random() * 1) * 90)
-            .font("Nanum Gothic")
-            .fontSize(d => 20 * Math.log(d.size+(2000/words.length)))
+            .font("Spoqa Han Sans Neo")
+            .fontSize(d => 20 * Math.log(d.size + (2000 / words.length)))
             .on("end", draw);
 
           layout.start();
@@ -866,12 +881,12 @@ function Atlas(props) {
               .enter()
               .append("text")
               .style("font-size", d => `${d.size}px`)
-              .style("font-family", "Nanum Gothic")
+              .style("font-family", "Spoqa Han Sans Neo")
               .attr("text-anchor", "middle")
               .attr("transform", d => {
                 return `translate(${[d.x, d.y]})rotate(${d.rotate})`
               })
-              .attr("fill", d => color(Math.log(d.fill+ 30/words.length) / 3))
+              .attr("fill", d => color(Math.log(d.fill + 30 / words.length) / 3))
               .text(d => d.text)
               .on("mouseover", handleMouseOver)
               .on("mouseout", handleMouseOut)
