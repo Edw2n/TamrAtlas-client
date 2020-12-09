@@ -511,6 +511,9 @@ function Atlas(props) {
           return freqs
         }
 
+        function cutAddress(text){
+         console.log(text.slice(text.slice(25).lastIndexOf(',')));
+        }
         function detailClicked(e, data) {
           let rect = e.currentTarget;
           // rect 변화 주기 // 해당 사각형 선택된 표시로 바꾸기 // brightness를 조절해야함 나중에
@@ -529,7 +532,7 @@ function Atlas(props) {
 
           detailsPopUP
             .select('#full-address')
-            .text(`${detailData.full_address_text}`)
+            .text(`${detailData.full_address_text.slice(0,detailData.full_address_text.slice(0,25).lastIndexOf(','))}`)
 
           detailsPopUP
             .select('a')
