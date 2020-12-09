@@ -236,11 +236,12 @@ function Atlas(props) {
           .enter()
           .append('rect')
           .attr('class', 'grid')
+          .attr('class','background-grid')
           .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size / 6)
           .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size / 6)
           .attr('width', gridInfo[level].size / 3)
           .attr('height', gridInfo[level].size / 3)
-          .attr('fill', 'orange');
+          //.attr('fill', 'orange');
 
         // Generate mountain data
         let mountainData = [];
@@ -731,7 +732,7 @@ function Atlas(props) {
                 .call(function () {
                   mountains
                     .selectAll(`.${head_string}${text.text()}`)
-                    .classed('tag-highlight', true)
+                    .classed('tag-highlight', text.classed('word-selected'))
                     .classed('tag-dehighlight', false)
                 })
 
@@ -807,10 +808,10 @@ function Atlas(props) {
           .attr('width', rightConfig.w)
           .attr('height', rightConfig.h)
 
-        let color = d3.scaleSequential(d3.interpolateSpectral); //d3.scaleSequential(d3.interpolateRainbow)
+        let color = d3.scaleSequential(d3.interpolateYlGnBu); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ['제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페'];//여행?카페?
+        let bannedWords = ["도카페","도맛집추천","도","도여행","제주",'제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페','island'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
@@ -829,6 +830,7 @@ function Atlas(props) {
         }
 
         function makecloud(words) {
+          console.log(words.length)
           let mycloud = d3.select('#wordCloud');
 
           var layout = cloud()
@@ -837,7 +839,7 @@ function Atlas(props) {
             .padding(3)
             .rotate(d => ~~(Math.random() * 1) * 90)
             .font("Nanum Gothic")
-            .fontSize(d => 20 * Math.log(d.size))
+            .fontSize(d => 20 * Math.log(d.size+(2000/words.length)))
             .on("end", draw);
 
           layout.start();
@@ -866,7 +868,7 @@ function Atlas(props) {
               .attr("transform", d => {
                 return `translate(${[d.x, d.y]})rotate(${d.rotate})`
               })
-              .attr("fill", d => color(Math.log(d.fill) / 3))
+              .attr("fill", d => color(Math.log(d.fill+ 30/words.length) / 3))
               .text(d => d.text)
               .on("mouseover", handleMouseOver)
               .on("mouseout", handleMouseOut)

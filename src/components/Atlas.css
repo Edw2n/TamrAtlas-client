@@ -42,8 +42,8 @@
 }
 
 .highlighted, .brushed {
-    stroke: orangered;
-    stroke-width: 0.75;
+    stroke: orange;
+    stroke-width: 2;
 }
 
 .tag-dehighlight {
@@ -51,8 +51,8 @@
 }
 
 .tag-highlight {
-    stroke: blue;
-    stroke-width: 0.75;
+    stroke: orange;
+    stroke-width: 2;
 }
 
 .word-cloud {
@@ -60,12 +60,17 @@
 }
 
 .word-selected {
-    fill: orangered;
+    fill: orange;
 }
 
 .opaque-background {
     fill :lightgray;
     opacity: 0.3;
+}
+
+.background-grid {
+    fill :gray;
+    opacity: 0.5;
 }
 
 
