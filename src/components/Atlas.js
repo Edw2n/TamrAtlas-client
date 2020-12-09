@@ -164,7 +164,7 @@ function Atlas(props) {
   let popUpConfig = {};
 
   let gridInfo;
-  const [level, setGrids] = useState(['vanila']);
+  //const [level, props.setGrids] = useState(['vanila']);
 
   React.useEffect(() => {
       async function drawMap() {
@@ -208,11 +208,12 @@ function Atlas(props) {
         }
 
         for (let key in tooltipConfigVanila) {
-          tooltipConfig[key] = tooltipConfigVanila[key] / gridInfo[level].start;
+          console.log(props.level)
+          tooltipConfig[key] = tooltipConfigVanila[key] / gridInfo[props.level].start;
         }
 
         for (let key in popUpConfigVanila) {
-          popUpConfig[key] = popUpConfigVanila[key] / gridInfo[level].start;
+          popUpConfig[key] = popUpConfigVanila[key] / gridInfo[props.level].start;
         }
 
 
@@ -225,7 +226,7 @@ function Atlas(props) {
           .selectAll('*').remove();
 
         // Load map grid data
-        const gridData = gridInfo[level].gridData;
+        const gridData = gridInfo[props.level].gridData;
 
         // Draw map as grids
         const atlas = svg.append('g')
@@ -240,10 +241,10 @@ function Atlas(props) {
           .append('rect')
           .attr('class', 'grid')
           .attr('class', 'background-grid')
-          .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size / 6)
-          .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size / 6)
-          .attr('width', gridInfo[level].size / 3)
-          .attr('height', gridInfo[level].size / 3)
+          .attr('x', (d) => d.index[1] * gridInfo[props.level].size + 300 - gridInfo[props.level].size / 6)
+          .attr('y', (d) => d.index[0] * gridInfo[props.level].size + 150 - gridInfo[props.level].size / 6)
+          .attr('width', gridInfo[props.level].size / 3)
+          .attr('height', gridInfo[props.level].size / 3)
         //.attr('fill', 'orange');
 
         // Generate mountain data
@@ -306,10 +307,10 @@ function Atlas(props) {
               .classed("oreum-grid", true)
               .classed("tag-dehighlight", false)
               .classed("tag-highlight", false)
-              .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[level].size + 300)
-              .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[level].size + 150)
-              .attr('width', (d) => d.size * gridInfo[level].size)
-              .attr('height', (d) => d.size * gridInfo[level].size)
+              .attr('x', (d) => (p.centerPos[1] + d.x - d.size / 2) * gridInfo[props.level].size + 300)
+              .attr('y', (d) => (p.centerPos[0] + d.y - d.size / 2) * gridInfo[props.level].size + 150)
+              .attr('width', (d) => d.size * gridInfo[props.level].size)
+              .attr('height', (d) => d.size * gridInfo[props.level].size)
               //.attr('fill', () => {
               //  let color = '#' + Math.floor(Math.random() * Math.pow(2, 32) ^ 0xffffff).toString(16).substr(-6);
               //  return color;
@@ -402,10 +403,10 @@ function Atlas(props) {
 
         function zoomed({transform}) {
           const zoomState = d3.zoomTransform(svg.node());
-          if (zoomState.k > gridInfo[level].end) {
-            setGrids(gridInfo[level].next);
-          } else if (zoomState.k < gridInfo[level].start) {
-            setGrids(gridInfo[level].prev);
+          if (zoomState.k > gridInfo[props.level].end) {
+            props.setGrids(gridInfo[props.level].next);
+          } else if (zoomState.k < gridInfo[props.level].start) {
+            props.setGrids(gridInfo[props.level].prev);
           } else {
             atlas.attr("transform", transform);
           }
@@ -555,7 +556,7 @@ function Atlas(props) {
             .scaleExtent([1, 23])
             .on("zoom", zoomed),
           d3.zoomIdentity
-            .scale(gridInfo[level].start * 2)
+            .scale(gridInfo[props.level].start * 2)
         )
 
         const brush = d3.brush()
@@ -786,9 +787,6 @@ function Atlas(props) {
               bbox_endY.push(Number(rect.attr('y')) + Number(rect.attr('height')));
             });
 
-          //.data()[0]
-          //.bbox
-
           console.log(bbox);
           d3.selectAll('.spatial-brush').raise();
           brush.move(d3.select('.spatial-brush'), [[Math.min(...bbox_x), Math.min(...bbox_y)],[Math.max(...bbox_endX), Math.max(...bbox_endY)]]);
@@ -829,7 +827,7 @@ function Atlas(props) {
         let color = d3.scaleSequential(d3.interpolateYlGnBu); //d3.scaleSequential(d3.interpolateRainbow)
 
         let wordSeed
-        let bannedWords = ["도피자", "도카페", "도맛집추천", "도", "도여행", "제주", '제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페', 'island'];//여행?카페?
+        let bannedWords = ["도맛집","도피자", "도카페", "도맛집추천", "도", "도여행", "제주", '제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페', 'island'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
@@ -856,7 +854,7 @@ function Atlas(props) {
             .words(words)
             .padding(3)
             .rotate(d => ~~(Math.random() * 1) * 90)
-            .font("Spoqa Han Sans Neo")
+            .font("IBMPlexSansKR-Regular")
             .fontSize(d => 20 * Math.log(d.size + (2000 / words.length)))
             .on("end", draw);
 
@@ -881,7 +879,7 @@ function Atlas(props) {
               .enter()
               .append("text")
               .style("font-size", d => `${d.size}px`)
-              .style("font-family", "Spoqa Han Sans Neo")
+              .style("font-family", "IBMPlexSansKR-Regular")
               .attr("text-anchor", "middle")
               .attr("transform", d => {
                 return `translate(${[d.x, d.y]})rotate(${d.rotate})`
@@ -948,7 +946,7 @@ function Atlas(props) {
     }
 
     ,
-    [level, props.instaData, top3Data]
+    [props.level, props.instaData, top3Data]
   );
 
   const svg = d3.select('#SummaryView');

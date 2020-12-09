@@ -10,7 +10,8 @@ import * as d3 from 'd3';
 import { Filter } from 'grommet-icons';
 
 function App() {
-  const [instaData, setInstaData] = useState([])
+  const [instaData, setInstaData] = useState([]);
+  const [level, setGrids] = useState(['vanila'])
   const [monthData, setMonthData] = useState([])
   const [monthDataReady, setMonthDataReady] = useState(false)
   const [timeData, setTimeData] = useState([])
@@ -166,7 +167,7 @@ function App() {
         {timeDataReady ? <BrushableBar data={timeData} type='time' from={timeFrom} to={timeTo} setFrom={setTimeFrom} setTo={setTimeTo} /> : null}
         {timeDataReady && monthDataReady ? <Button onClick={brushEndFetch} icon={<Filter/>} label='Filter' color='orange'/> : null}
       </Box>
-      <Atlas instaData={instaData} />
+      <Atlas instaData={instaData}  level={level} setGrids={setGrids} />
     </div>
   );
 }
