@@ -157,7 +157,7 @@ function Atlas(props) {
   console.log(data);
 
   let w = 2000;
-  let h = 1100;
+  let h = 1000;
 
   let tooltipConfig = {};
   let top3Data = [];
@@ -228,7 +228,10 @@ function Atlas(props) {
         const gridData = gridInfo[level].gridData;
 
         // Draw map as grids
-        const atlas = svg.append('g');
+        const atlas = svg.append('g')
+          .attr('id','atlas')
+          //.attr('transform','translate(-150.86,22.75)');
+
         const map = atlas.append('g');
         map
           .selectAll('rect')
