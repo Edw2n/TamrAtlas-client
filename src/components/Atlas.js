@@ -236,11 +236,12 @@ function Atlas(props) {
           .enter()
           .append('rect')
           .attr('class', 'grid')
+          .attr('class','background-grid')
           .attr('x', (d) => d.index[1] * gridInfo[level].size + 300 - gridInfo[level].size / 6)
           .attr('y', (d) => d.index[0] * gridInfo[level].size + 150 - gridInfo[level].size / 6)
           .attr('width', gridInfo[level].size / 3)
           .attr('height', gridInfo[level].size / 3)
-          .attr('fill', 'orange');
+          //.attr('fill', 'orange');
 
         // Generate mountain data
         let mountainData = [];
