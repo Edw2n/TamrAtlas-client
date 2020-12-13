@@ -82,7 +82,7 @@ function App() {
           datum.monthRaw = item.month
           datum.yearRaw = item.year
           datum.value = item.count
-          datum.color = item.dominant_color ? item.dominant_color : '#FFFFFF'
+          datum.color = '#CACACA'
           data.push(datum)
         })
 
@@ -97,7 +97,7 @@ function App() {
           datum.date = parseHour(item.hour);
           datum.hourRaw = item.hour;
           datum.value = item.count;
-          datum.color = color[index % 3]
+          datum.color = '#CACACA'
           hourData.push(datum)
         })
 
@@ -121,7 +121,7 @@ function App() {
         datum.monthRaw = item.month
         datum.yearRaw = item.year
         datum.value = item.count
-        datum.color = item.dominant_color ? item.dominant_color : '#FFFFFF'
+        datum.color = '#CACACA'
         data.push(datum)
       })
 
@@ -131,10 +131,10 @@ function App() {
       setMonthDataReady(true);
       setTimeData(null);
 
-      let color = [
-        '#001322', '#012459', '#003972', '#004372', '#011d34', '#016792', '#07729f', '#12a1c1', '#74d4cc', '#efeebc', '#fee154', '#fdc352', '#ffac6f',
-        '#fda65a', '#fd9e58', '#f18448', '#f06b7e', '#ca5a92', '#5b2c83', '#371a79', '#28166b', '#192861',  '#012459', '#040b3c'
-      ]
+      // let color = [
+      //   '#001322', '#012459', '#003972', '#004372', '#011d34', '#016792', '#07729f', '#12a1c1', '#74d4cc', '#efeebc', '#fee154', '#fdc352', '#ffac6f',
+      //   '#fda65a', '#fd9e58', '#f18448', '#f06b7e', '#ca5a92', '#5b2c83', '#371a79', '#28166b', '#192861',  '#012459', '#040b3c'
+      // ]
       let hourData = []
       let parseHour = d3.timeParse("%H")
 
@@ -143,7 +143,7 @@ function App() {
         datum.date = parseHour(item.hour);
         datum.hourRaw = item.hour;
         datum.value = item.count;
-        datum.color = color[index]
+        datum.color = '#CACACA'
         hourData.push(datum)
       })
 
