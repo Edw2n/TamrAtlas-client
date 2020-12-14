@@ -828,8 +828,8 @@ function Atlas(props) {
 
         let color = d3.scaleSequential(d3.interpolateYlGnBu); //d3.scaleSequential(d3.interpolateRainbow)
 
-        let wordSeed
-        let bannedWords = ["도피자", "도카페", "도맛집추천", "도", "도여행", "제주", '제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페', 'island'];//여행?카페?
+        let wordSeed;
+        let bannedWords = ["살이","도맛집","도피자", "도카페", "도맛집추천", "도", "도여행", "제주", '제주도', 'do', 'Repost', '제주', 'jeju', '광고', 'jejudo', 'JEJU', '협찬', 'jejuisland', 'follow', '맞팔', '도', '시', '도카페', 'island'];//여행?카페?
 
         reloadWordCloud(hashtags)
 
@@ -856,7 +856,7 @@ function Atlas(props) {
             .words(words)
             .padding(3)
             .rotate(d => ~~(Math.random() * 1) * 90)
-            .font("Spoqa Han Sans Neo")
+            .font("IBMPlexSansKR-Regular")
             .fontSize(d => 20 * Math.log(d.size + (2000 / words.length)))
             .on("end", draw);
 
@@ -881,7 +881,7 @@ function Atlas(props) {
               .enter()
               .append("text")
               .style("font-size", d => `${d.size}px`)
-              .style("font-family", "Spoqa Han Sans Neo")
+              .style("font-family", "IBMPlexSansKR-Regular")
               .attr("text-anchor", "middle")
               .attr("transform", d => {
                 return `translate(${[d.x, d.y]})rotate(${d.rotate})`
